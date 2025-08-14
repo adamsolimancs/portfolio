@@ -1,5 +1,6 @@
 import { Mail, Github, Linkedin, ArrowDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import Navigation from '@/components/Navigation';
 import ProjectCard from '@/components/ProjectCard';
 import ContactForm from '@/components/ContactForm';
@@ -44,37 +45,60 @@ const Portfolio = () => {
         <div className="section-container">
           <div className="max-w-4xl">
             <div className="animate-fade-in">
-              <h1 className="text-display mb-6 pt-8 md:pt-0">
-                Adam Soliman
-              </h1>
-              <h2 className="text-subheading mb-8 max-w-2xl">
-                Full-Stack Software & AI Developer
-              </h2>
-              <p className="text-body max-w-xl mb-6">
-                I'm a Computer Science student at NYU with a passion for AI, machine learning, and entrepreneurship.
-              </p>
-              <p className="text-body max-w-xl mb-12">
-                I create beautiful, functional, and user-centered digital experiences, combining clean code with elegant design. 
-                With a focus on thoughtful development and attention to detail, I bring ideas to life that merge innovation with usability.
-              </p>
+              {/* Profile Section */}
+              <div className="flex flex-col lg:flex-row lg:items-start gap-8 mb-12">
+                <div className="flex flex-col items-center lg:items-start">
+                  <Avatar className="w-32 h-32 md:w-40 md:h-40 mb-6">
+                    <AvatarImage 
+                      src="/placeholder.svg" 
+                      alt="Adam Soliman" 
+                      className="object-cover"
+                    />
+                    <AvatarFallback className="text-2xl md:text-3xl font-medium">AS</AvatarFallback>
+                  </Avatar>
+                  <div className="signature-placeholder text-center lg:text-left">
+                    <p className="text-lg italic text-muted-foreground font-script">
+                      Adam Soliman
+                    </p>
+                  </div>
+                </div>
+                
+                <div className="flex-1 text-center lg:text-left">
+                  <h1 className="text-display mb-6 pt-8 md:pt-0">
+                    Adam Soliman
+                  </h1>
+                  <h2 className="text-subheading mb-8 max-w-2xl">
+                    Full-Stack Software & AI Developer
+                  </h2>
+                  <p className="text-body max-w-xl mb-6">
+                    I'm a Computer Science student at NYU with a passion for AI, machine learning, and entrepreneurship.
+                  </p>
+                  <p className="text-body max-w-xl mb-12">
+                    I create beautiful, functional, and user-centered digital experiences, combining clean code with elegant design. 
+                    With a focus on thoughtful development and attention to detail, I bring ideas to life that merge innovation with usability.
+                  </p>
+                  
+                  <div className="flex flex-col sm:flex-row gap-4 mb-16">
+                    <Button onClick={scrollToProjects} size="lg">
+                      View My Work
+                    </Button>
+                    <Button variant="outline" size="lg" asChild>
+                      <a href="#contact">Get In Touch</a>
+                    </Button>
+                  </div>
+                </div>
+              </div>
               
-              <div className="flex flex-col sm:flex-row gap-4 mb-16">
-                <Button onClick={scrollToProjects} size="lg">
-                  View My Work
-                </Button>
-                <Button variant="outline" size="lg" asChild>
-                  <a href="#contact">Get In Touch</a>
-                </Button>
+              <div className="text-center">
+                <button
+                  onClick={scrollToProjects}
+                  className="animate-float hover:text-primary transition-colors"
+                  aria-label="Scroll to projects"
+                >
+                  <ArrowDown className="w-6 h-6" />
+                </button>
               </div>
             </div>
-            
-            <button
-              onClick={scrollToProjects}
-              className="animate-float hover:text-primary transition-colors"
-              aria-label="Scroll to projects"
-            >
-              <ArrowDown className="w-6 h-6" />
-            </button>
           </div>
         </div>
       </section>
