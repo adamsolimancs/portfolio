@@ -157,11 +157,11 @@ const Portfolio = () => {
 
                     <div className="flex flex-col gap-4">
                       <a
-                        href="mailto:adamesoliman@gmail.com"
+                        href="/"
                         className="flex items-center gap-3 text-primary hover:text-primary/80 transition-colors"
                       >
                         <Mail className="w-5 h-5" />
-                        adamesoliman@gmail.com
+                        aes10130 at nyu.edu
                       </a>
                       <a
                         href="https://github.com/adamsolimancs/"
