@@ -44,7 +44,7 @@ const Portfolio = () => {
         <div className="section-container">
           <div className="max-w-4xl">
             <div className="animate-fade-in">
-              <h1 className="text-display mb-6">
+              <h1 className="text-display mb-6 pt-8 md:pt-0">
                 Adam Soliman
               </h1>
               <h2 className="text-subheading mb-8 max-w-2xl">
