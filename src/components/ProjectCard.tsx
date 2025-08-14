@@ -53,13 +53,13 @@ const ProjectCard = ({
           {liveUrl && (
             <Button variant="outline" size="sm" asChild>
               <a
-                href={liveUrl}
+                href={`https://${liveUrl}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center gap-2"
               >
                 <ExternalLink className="w-3 h-3" />
-                Live Demo
+                Live
               </a>
             </Button>
           )}

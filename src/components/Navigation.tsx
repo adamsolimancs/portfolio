@@ -49,7 +49,7 @@ const Navigation = ({ className = "" }: NavigationProps) => {
             onClick={() => scrollToSection('hero')}
             className="text-heading text-lg font-semibold hover:text-primary transition-colors"
           >
-            Portfolio
+            Adam Soliman
           </button>
           
           <div className="hidden md:flex items-center space-x-8">

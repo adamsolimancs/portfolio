@@ -5,28 +5,26 @@ import ProjectCard from '@/components/ProjectCard';
 import ContactForm from '@/components/ContactForm';
 
 const Portfolio = () => {
-  // Placeholder project data - easily customizable
+
   const projects = [
     {
-      title: "E-commerce Platform",
-      description: "A modern, responsive e-commerce platform built with React and Node.js. Features include user authentication, payment processing, and admin dashboard.",
-      technologies: ["React", "Node.js", "MongoDB", "Stripe"],
-      liveUrl: "https://example.com",
-      githubUrl: "https://github.com/example",
+      title: "PTI - AI Physical Therapy",
+      description: "Developed a full-stack AI-powered physical therapy platform, designing and implementing a complete architecture from scratch, including: a modern UI, LLM fine tuning, an API, interactive 3D models, and secure, encrypted authentication.",
+      technologies: ["PostgreSQL", "SQLAlchemy", "Mistral AI", "Tailwind CSS", "React", "Next.js", "Python"],
+      githubUrl: "https://github.com/kvilleda12/pt",
     },
     {
-      title: "Task Management App",
-      description: "A collaborative task management application with real-time updates, team collaboration features, and intuitive drag-and-drop interface.",
-      technologies: ["Vue.js", "Firebase", "Tailwind CSS"],
-      liveUrl: "https://example.com",
-      githubUrl: "https://github.com/example",
+      title: "Inhale",
+      description: "Developed a cross-platform mobile app (iOS, Android) with a team at HackNYU, focusing on mindfulness and aiding mental illness. Built key app features (breathing customization, daily streaks, haptic feedback) and frontend components.",
+      technologies: ["JavaScript", "React-Native", "Expo", "Node.js"],
+      githubUrl: "https://github.com/adamsolimancs/Inhale-Breathing-App",
     },
     {
       title: "Portfolio Website",
-      description: "A minimalist portfolio website showcasing clean design principles and smooth animations. Built with modern web technologies.",
-      technologies: ["React", "TypeScript", "Framer Motion"],
-      liveUrl: "https://example.com",
-      githubUrl: "https://github.com/example",
+      description: "A minimalist portfolio website showcasing clean design principles and smooth animations. Built with modern web technologies and AI tools.",
+      technologies: ["React", "Vite", "TypeScript", "Lovable.dev", "Tailwind CSS"],
+      liveUrl: "adamesoliman.com",
+      githubUrl: "https://github.com/adamsolimancs/portfolio",
     },
   ];
 
@@ -47,15 +45,17 @@ const Portfolio = () => {
           <div className="max-w-4xl">
             <div className="animate-fade-in">
               <h1 className="text-display mb-6">
-                Alex Johnson
+                Adam Soliman
               </h1>
               <h2 className="text-subheading mb-8 max-w-2xl">
-                Frontend Developer & UI/UX Designer
+                Full-Stack Software & AI Developer
               </h2>
+              <p className="text-body max-w-xl mb-6">
+                I'm a Computer Science student at NYU with a passion for AI, machine learning, and entrepreneurship.
+              </p>
               <p className="text-body max-w-xl mb-12">
-                I create beautiful, functional, and user-centered digital experiences. 
-                With a passion for clean code and elegant design, I bring ideas to life 
-                through thoughtful development and attention to detail.
+                I create beautiful, functional, and user-centered digital experiences, combining clean code with elegant design. 
+                With a focus on thoughtful development and attention to detail, I bring ideas to life that merge innovation with usability.
               </p>
               
               <div className="flex flex-col sm:flex-row gap-4 mb-16">
@@ -83,7 +83,7 @@ const Portfolio = () => {
       <section id="projects" className="section-spacing">
         <div className="section-container">
           <div className="animate-slide-up">
-            <h2 className="text-heading mb-4">Selected Projects</h2>
+            <h2 className="text-heading mb-4">Projects</h2>
             <p className="text-body mb-16 max-w-2xl">
               Here are some of my recent projects that showcase my skills in 
               frontend development, design, and problem-solving.
@@ -134,29 +134,29 @@ const Portfolio = () => {
                     
                     <div className="flex flex-col gap-4">
                       <a
-                        href="mailto:alex@example.com"
+                        href="mailto:adamesoliman@gmail.com"
                         className="flex items-center gap-3 text-primary hover:text-primary/80 transition-colors"
                       >
                         <Mail className="w-5 h-5" />
-                        alex@example.com
+                        adamesoliman@gmail.com
                       </a>
                       <a
-                        href="https://github.com/alexjohnson"
+                        href="https://github.com/adamsolimancs/"
                         target="_blank"
                         rel="noopener noreferrer"
                         className="flex items-center gap-3 text-primary hover:text-primary/80 transition-colors"
                       >
                         <Github className="w-5 h-5" />
-                        github.com/alexjohnson
+                        GitHub
                       </a>
                       <a
-                        href="https://linkedin.com/in/alexjohnson"
+                        href="https://www.linkedin.com/in/adam-soliman-71256b291/"
                         target="_blank"
                         rel="noopener noreferrer"
                         className="flex items-center gap-3 text-primary hover:text-primary/80 transition-colors"
                       >
                         <Linkedin className="w-5 h-5" />
-                        linkedin.com/in/alexjohnson
+                        LinkedIn
                       </a>
                     </div>
                   </div>
@@ -172,7 +172,7 @@ const Portfolio = () => {
         <div className="section-container">
           <div className="text-center">
             <p className="text-caption">
-              © 2024 Alex Johnson. Built with love and attention to detail.
+              © 2025 Adam Soliman.
             </p>
           </div>
         </div>
