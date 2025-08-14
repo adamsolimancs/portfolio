@@ -57,9 +57,11 @@ const Portfolio = () => {
                     <AvatarFallback className="text-2xl md:text-3xl font-medium">AS</AvatarFallback>
                   </Avatar>
                   <div className="signature-placeholder text-center lg:text-left">
-                    <p className="text-lg italic text-muted-foreground font-script">
-                      Adam Soliman
-                    </p>
+                    <img 
+                      src="/placeholder.svg" 
+                      alt="Adam Soliman signature" 
+                      className="h-8 md:h-10 w-auto mx-auto lg:mx-0"
+                    />
                   </div>
                 </div>
                 
