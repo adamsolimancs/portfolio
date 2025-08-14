@@ -39,7 +39,7 @@ const Portfolio = () => {
   return (
     <div className="min-h-screen bg-background">
       <Navigation />
-      
+
       {/* Hero Section */}
       <section id="hero" className="section-spacing min-h-screen flex items-center">
         <div className="section-container">
@@ -47,24 +47,22 @@ const Portfolio = () => {
             <div className="animate-fade-in">
               {/* Profile Section */}
               <div className="flex flex-col lg:flex-row lg:items-start gap-8 mb-12">
-                <div className="flex flex-col items-center lg:items-start">
+                <div className="flex flex-col items-center">
                   <Avatar className="w-32 h-32 md:w-40 md:h-40 mb-6">
-                    <AvatarImage 
-                      src="/placeholder.svg" 
-                      alt="Adam Soliman" 
+                    <AvatarImage
+                      src="/headshot.jpg"
+                      alt="Adam Soliman"
                       className="object-cover"
                     />
                     <AvatarFallback className="text-2xl md:text-3xl font-medium">AS</AvatarFallback>
                   </Avatar>
-                  <div className="signature-placeholder text-center lg:text-left">
-                    <img 
-                      src="/placeholder.svg" 
-                      alt="Adam Soliman signature" 
-                      className="h-8 md:h-10 w-auto mx-auto lg:mx-0"
-                    />
-                  </div>
+                  <img
+                    src="/logo.png"
+                    alt="Adam Soliman signature"
+                    className="h-14 md:h-18 lg:h-24 w-auto"
+                  />
                 </div>
-                
+
                 <div className="flex-1 text-center lg:text-left">
                   <h1 className="text-display mb-6 pt-8 md:pt-0">
                     Adam Soliman
@@ -76,10 +74,10 @@ const Portfolio = () => {
                     I'm a Computer Science student at NYU with a passion for AI, machine learning, and entrepreneurship.
                   </p>
                   <p className="text-body max-w-xl mb-12">
-                    I create beautiful, functional, and user-centered digital experiences, combining clean code with elegant design. 
+                    I create beautiful, functional, and user-centered digital experiences, combining clean code with elegant design.
                     With a focus on thoughtful development and attention to detail, I bring ideas to life that merge innovation with usability.
                   </p>
-                  
+
                   <div className="flex flex-col sm:flex-row gap-4 mb-16">
                     <Button onClick={scrollToProjects} size="lg">
                       View My Work
@@ -90,7 +88,7 @@ const Portfolio = () => {
                   </div>
                 </div>
               </div>
-              
+
               <div className="text-center">
                 <button
                   onClick={scrollToProjects}
@@ -109,12 +107,11 @@ const Portfolio = () => {
       <section id="projects" className="section-spacing">
         <div className="section-container">
           <div className="animate-slide-up">
-            <h2 className="text-heading mb-4">Projects</h2>
-            <p className="text-body mb-16 max-w-2xl">
-              Here are some of my recent projects that showcase my skills in 
-              frontend development, design, and problem-solving.
+            <h2 className="text-heading mb-4 text-center">Projects</h2>
+            <p className="text-body mb-16 max-w-2xl text-center mx-auto">
+              Here are some of my recent projects that showcase my skills in
+              full-stack development, design, and problem-solving.
             </p>
-            
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {projects.map((project, index) => (
                 <ProjectCard
@@ -136,28 +133,28 @@ const Portfolio = () => {
             <div className="animate-slide-up">
               <h2 className="text-heading mb-4 text-center">Let's Work Together</h2>
               <p className="text-body mb-16 text-center max-w-2xl mx-auto">
-                I'm always interested in new opportunities and exciting projects. 
+                I'm always interested in new opportunities and exciting projects.
                 Whether you have a question or just want to say hello, feel free to reach out.
               </p>
-              
+
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-16">
                 {/* Contact Form */}
                 <div>
                   <h3 className="text-xl font-medium mb-6">Send a Message</h3>
                   <ContactForm />
                 </div>
-                
+
                 {/* Contact Info */}
                 <div>
                   <h3 className="text-xl font-medium mb-6">Connect With Me</h3>
                   <div className="space-y-6">
                     <div>
                       <p className="text-body mb-4">
-                        Feel free to reach out through any of these channels. 
+                        Feel free to reach out through any of these channels.
                         I typically respond within 24 hours.
                       </p>
                     </div>
-                    
+
                     <div className="flex flex-col gap-4">
                       <a
                         href="mailto:adamesoliman@gmail.com"
@@ -192,7 +189,7 @@ const Portfolio = () => {
           </div>
         </div>
       </section>
-      
+
       {/* Footer */}
       <footer className="border-t border-border py-8">
         <div className="section-container">
