@@ -47,7 +47,7 @@ const Portfolio = () => {
             <div className="animate-fade-in">
               {/* Profile Section */}
               <div className="flex flex-col lg:flex-row lg:items-start gap-8 mb-12">
-                <div className="flex flex-col items-center">
+                <div className="flex flex-col items-center pt-4 sm:pt-0 pb-0 sm:pb-6">
                   <Avatar className="w-32 h-32 md:w-40 md:h-40 mb-6">
                     <AvatarImage
                       src="/headshot.jpg"
