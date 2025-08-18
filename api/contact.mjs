@@ -7,6 +7,14 @@ export default async function handler(req, res) {
   const { name, email, message } = req.body;
 
   try {
+    console.log('ENV flags', {
+      service: !!process.env.EMAILJS_SERVICE_ID,
+      template: !!process.env.EMAILJS_TEMPLATE_ID,
+      publicKey: !!process.env.EMAILJS_PUBLIC_KEY,
+      privateKey: !!process.env.EMAILJS_PRIVATE_KEY,
+      pkTail: (process.env.EMAILJS_PRIVATE_KEY || '').slice(-4),
+    });
+
     await send(
       process.env.EMAILJS_SERVICE_ID,
       process.env.EMAILJS_TEMPLATE_ID,
