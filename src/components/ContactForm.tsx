@@ -38,7 +38,7 @@ const ContactForm = () => {
         body: JSON.stringify(formData),
       });
 
-      if (!response) {
+      if (!response || response.status !== 200) {
         throw new Error('Failed to send email.');
       }
 
