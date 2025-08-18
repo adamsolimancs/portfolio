@@ -4,6 +4,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
+import emailjs from 'emailjs-com';
 
 const ContactForm = () => {
   const [formData, setFormData] = useState({
@@ -25,17 +26,32 @@ const ContactForm = () => {
     e.preventDefault();
     setIsSubmitting(true);
 
-    // Simulate form submission
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    if (!formData.email || !formData.name || !formData.message) {
+      toast({ title: "Error", description: "Please fill in all fields.", variant: "destructive" });
+      return
+    }
 
-    toast({
-      title: "Message sent!",
-      description: "Thank you for your message. I'll get back to you soon.",
-    });
+    try {
+      const response = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData),
+      });
 
-    setFormData({ name: '', email: '', message: '' });
-    setIsSubmitting(false);
+      if (!response) {
+        throw new Error('Failed to send email.');
+      }
+
+      toast({ title: "Message sent!", description: "Thanks for reaching out!" });
+      setFormData({ name: '', email: '', message: '' });
+    } catch (error) {
+      console.log(error);
+      toast({ title: "Error", description: "Failed to send email.", variant: "destructive" });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
+
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6 max-w-md">
@@ -50,7 +66,7 @@ const ContactForm = () => {
           className="bg-background"
         />
       </div>
-      
+
       <div className="space-y-2">
         <Label htmlFor="email">Email</Label>
         <Input
@@ -63,7 +79,7 @@ const ContactForm = () => {
           className="bg-background"
         />
       </div>
-      
+
       <div className="space-y-2">
         <Label htmlFor="message">Message</Label>
         <Textarea
@@ -76,7 +92,7 @@ const ContactForm = () => {
           className="bg-background resize-none"
         />
       </div>
-      
+
       <Button
         type="submit"
         disabled={isSubmitting}

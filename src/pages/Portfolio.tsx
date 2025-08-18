@@ -68,14 +68,17 @@ const Portfolio = () => {
                     Adam Soliman
                   </h1>
                   <h2 className="text-subheading mb-8 max-w-2xl">
-                    Full-Stack Software & AI Developer
+                    Full-Stack Developer & NYU CS Honors
                   </h2>
                   <p className="text-body max-w-xl mb-6">
-                    I'm a Computer Science student at NYU with a passion for AI, machine learning, and entrepreneurship.
+                    I'm an undergrad computer science student at NYU with a passion for AI research, machine learning, and entrepreneurship.
+                  </p>
+                  <p className="text-body max-w-xl mb-6">
+                    Currently, I have experience in full-stack development and AI, creating user-centric applications that leverage modern technologies.
+                    I genuinely enjoy creating unique ways to solve peoples' problems, especially using machine learning.
                   </p>
                   <p className="text-body max-w-xl mb-12">
-                    I create beautiful, functional, and user-centered digital experiences, combining clean code with elegant design.
-                    With a focus on thoughtful development and attention to detail, I bring ideas to life that merge innovation with usability.
+                    Outside of coding, I enjoy playing basketball, listening to music, and learning Spanish and Arabic.
                   </p>
 
                   <div className="flex flex-col sm:flex-row gap-4 mb-16">
