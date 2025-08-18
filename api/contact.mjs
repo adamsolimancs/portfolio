@@ -1,5 +1,5 @@
 // api/contact.mjs
-import emailjs from 'emailjs-com';
+import { send } from '@emailjs/nodejs';
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).send('Method not allowed');
@@ -7,7 +7,7 @@ export default async function handler(req, res) {
   const { name, email, message } = req.body;
 
   try {
-    await emailjs.send(
+    await send(
       process.env.EMAILJS_SERVICE_ID,
       process.env.EMAILJS_TEMPLATE_ID,
       { name, email, message },
