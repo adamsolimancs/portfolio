@@ -63,7 +63,7 @@ const Portfolio = () => {
                 </div>
 
                 <div className="flex-1 text-center lg:text-left">
-                  <h1 className="text-display mb-6 pt-8 md:pt-0">
+                  <h1 className="text-display mb-6 pt-1 md:pt-0">
                     Adam Soliman
                   </h1>
                   <h2 className="text-subheading mb-8 max-w-2xl">
