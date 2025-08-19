@@ -3,7 +3,6 @@ import { Button } from '@/components/ui/button';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import Navigation from '@/components/Navigation';
 import ProjectCard from '@/components/ProjectCard';
-import ContactForm from '@/components/ContactForm';
 
 const Portfolio = () => {
 
@@ -134,57 +133,43 @@ const Portfolio = () => {
         <div className="section-container">
           <div className="max-w-4xl mx-auto">
             <div className="animate-slide-up">
-              <h2 className="text-heading mb-4 text-center">Let's Work Together</h2>
-              <p className="text-body mb-16 text-center max-w-2xl mx-auto">
-                I'm always interested in new opportunities and exciting projects.
-                Whether you have a question or just want to say hello, feel free to reach out.
-              </p>
-
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-16">
-                {/* Contact Form */}
-                <div>
-                  <h3 className="text-xl font-medium mb-6">Send a Message</h3>
-                  <ContactForm />
-                </div>
-
+              <h2 className="text-heading mb-4 text-center">Contact Me</h2>
+              <div className="gap-16 items-center justify-center">
                 {/* Contact Info */}
-                <div>
-                  <h3 className="text-xl font-medium mb-6">Connect With Me</h3>
-                  <div className="space-y-6">
-                    <div>
-                      <p className="text-body mb-4">
-                        Feel free to reach out through any of these channels.
-                        I typically respond within 24 hours.
-                      </p>
-                    </div>
+                <div className="space-y-6">
+                  <div>
+                    <p className="text-body mb-4 text-center">
+                      Feel free to reach out through any of these channels.
+                      I typically respond within 24 hours.
+                    </p>
+                  </div>
 
-                    <div className="flex flex-col gap-4">
-                      <a
-                        href="/"
-                        className="flex items-center gap-3 text-primary hover:text-primary/80 transition-colors"
-                      >
-                        <Mail className="w-5 h-5" />
-                        aes10130 at nyu.edu
-                      </a>
-                      <a
-                        href="https://github.com/adamsolimancs/"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center gap-3 text-primary hover:text-primary/80 transition-colors"
-                      >
-                        <Github className="w-5 h-5" />
-                        GitHub
-                      </a>
-                      <a
-                        href="https://www.linkedin.com/in/adam-soliman-71256b291/"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center gap-3 text-primary hover:text-primary/80 transition-colors"
-                      >
-                        <Linkedin className="w-5 h-5" />
-                        LinkedIn
-                      </a>
-                    </div>
+                  <div className="flex flex-col gap-4">
+                    <a
+                      href="/"
+                      className="flex items-center gap-3 text-primary hover:text-primary/80 transition-colors"
+                    >
+                      <Mail className="w-5 h-5" />
+                      aes10130 at nyu.edu
+                    </a>
+                    <a
+                      href="https://github.com/adamsolimancs/"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-3 text-primary hover:text-primary/80 transition-colors"
+                    >
+                      <Github className="w-5 h-5" />
+                      GitHub
+                    </a>
+                    <a
+                      href="https://www.linkedin.com/in/adam-soliman-71256b291/"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-3 text-primary hover:text-primary/80 transition-colors"
+                    >
+                      <Linkedin className="w-5 h-5" />
+                      LinkedIn
+                    </a>
                   </div>
                 </div>
               </div>
