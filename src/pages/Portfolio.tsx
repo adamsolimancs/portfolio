@@ -136,7 +136,7 @@ const Portfolio = () => {
               <h2 className="text-heading mb-4 text-center">Contact Me</h2>
               <div className="gap-16 items-center justify-center">
                 {/* Contact Info */}
-                <div className="space-y-6">
+                <div className="space-y-6 flex flex-col items-center">
                   <div>
                     <p className="text-body mb-4 text-center">
                       Feel free to reach out through any of these channels.
@@ -144,7 +144,7 @@ const Portfolio = () => {
                     </p>
                   </div>
 
-                  <div className="flex flex-col gap-4">
+                  <div className="flex flex-col gap-4 items-start">
                     <a
                       href="/"
                       className="flex items-center gap-3 text-primary hover:text-primary/80 transition-colors"
