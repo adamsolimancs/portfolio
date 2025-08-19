@@ -1,26 +1,35 @@
 // api/contact.mjs
-import { send } from '@emailjs/nodejs';
-
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).send('Method not allowed');
+  const body = typeof req.body === 'string' ? JSON.parse(req.body) : (req.body || {});
 
-  const { name, email, message } = req.body;
+  const { name, email, message } = body;
+  if (!name || !email || !message) return res.status(400).json({ error: 'Missing fields' });
+
+  const { EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, EMAILJS_PRIVATE_KEY } = process.env;
+  if (!EMAILJS_SERVICE_ID || !EMAILJS_TEMPLATE_ID || !EMAILJS_PRIVATE_KEY) {
+    return res.status(500).json({ error: 'Server not configured' });
+  }
 
   try {
-    console.log('ENV flags', {
-      service: !!process.env.EMAILJS_SERVICE_ID,
-      template: !!process.env.EMAILJS_TEMPLATE_ID,
-      publicKey: !!process.env.EMAILJS_PUBLIC_KEY,
-      privateKey: !!process.env.EMAILJS_PRIVATE_KEY,
-      pkTail: (process.env.EMAILJS_PRIVATE_KEY || '').slice(-4),
+    const r = await fetch('https://api.emailjs.com/api/v1.0/email/send', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${EMAILJS_PRIVATE_KEY.trim()}`,
+      },
+      body: JSON.stringify({
+        service_id: EMAILJS_SERVICE_ID,
+        template_id: EMAILJS_TEMPLATE_ID,
+        template_params: { name, email, message },
+      }),
     });
 
-    await send(
-      process.env.EMAILJS_SERVICE_ID,
-      process.env.EMAILJS_TEMPLATE_ID,
-      { name, email, message },
-      { publicKey: process.env.EMAILJS_PUBLIC_KEY, privateKey: process.env.EMAILJS_PRIVATE_KEY },
-    );
+    if (!r.ok) {
+      const text = await r.text();
+      console.error('EmailJS REST failed:', r.status, text);
+      return res.status(502).json({ error: 'Send failed', details: text });
+    }
 
     res.status(200).json({ success: true });
   } catch (err) {
