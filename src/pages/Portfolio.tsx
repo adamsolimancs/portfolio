@@ -80,7 +80,7 @@ const Portfolio = () => {
                     Outside of coding, I enjoy playing basketball, listening to music, and learning Spanish and Arabic.
                   </p>
 
-                  <div className="flex flex-col sm:flex-row gap-4 mb-16">
+                  <div className="flex flex-col sm:flex-row gap-4 mb-16 justify-center items-center">
                     <Button onClick={scrollToProjects} size="lg">
                       View My Work
                     </Button>
