@@ -80,7 +80,7 @@ const Portfolio = () => {
                     Outside of coding, I enjoy playing basketball, listening to music, and learning Spanish and Arabic.
                   </p>
 
-                  <div className="flex flex-col sm:flex-row gap-4 mb-16 justify-center items-center">
+                  <div className="flex flex-col sm:flex-row gap-4 mb-16 justify-center items-center w-full lg:pr-32">
                     <Button onClick={scrollToProjects} size="lg">
                       View My Work
                     </Button>
@@ -145,13 +145,12 @@ const Portfolio = () => {
                   </div>
 
                   <div className="flex flex-col gap-4 items-start">
-                    <a
-                      href="/"
-                      className="flex items-center gap-3 text-primary hover:text-primary/80 transition-colors"
+                    <p
+                      className="flex items-center gap-3 text-primary"
                     >
                       <Mail className="w-5 h-5" />
                       aes10130 at nyu.edu
-                    </a>
+                    </p>
                     <a
                       href="https://github.com/adamsolimancs/"
                       target="_blank"
