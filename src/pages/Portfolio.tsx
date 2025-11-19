@@ -33,6 +33,13 @@ const Portfolio = () => {
       liveUrl: "clarecreated.com",
       githubUrl: "https://github.com/adamsolimancs/clarecreated",
     },
+    {
+      title: "ShAI - NBA Statistics AI Chatbot",
+      description: "Developed an AI chatbot that provides NBA statistics and insights using natural language processing. Integrated with a comprehensive NBA stats database to deliver accurate and timely information.",
+      technologies: ["Python", "Flask", "OpenAI GPT-3", "PostgreSQL"],
+      liveUrl: "shaistats.com",
+      githubUrl: "https://github.com/adamsolimancs/nbai",
+    },
   ];
 
   const scrollToProjects = () => {
