@@ -7,13 +7,17 @@ import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
+const routerFutureFlags = {
+  v7_startTransition: true,
+  v7_relativeSplatPath: true,
+} as const;
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <Toaster />
       <Sonner />
-      <BrowserRouter>
+      <BrowserRouter future={routerFutureFlags}>
         <Routes>
           <Route path="/" element={<Index />} />
           {/* ADD CUSTOM ROUTES IF NEEDED */}

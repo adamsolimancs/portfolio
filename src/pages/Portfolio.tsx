@@ -4,49 +4,55 @@ import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import Navigation from '@/components/Navigation';
 import ProjectCard from '@/components/ProjectCard';
 
-const Portfolio = () => {
+type Project = {
+  title: string;
+  description: string;
+  technologies: string[];
+  liveUrl?: string;
+  githubUrl?: string;
+};
 
-  const projects = [
-    {
-      title: "PTI - AI Physical Therapy",
-      description: "Developed a full-stack AI-powered physical therapy platform, designing and implementing a complete architecture from scratch, including: a modern UI, LLM fine tuning, an API, interactive 3D models, and secure, encrypted authentication.",
-      technologies: ["PostgreSQL", "SQLAlchemy", "Mistral AI", "Tailwind CSS", "React", "Next.js", "Python"],
-      githubUrl: "https://github.com/kvilleda12/pt",
-    },
-    {
-      title: "Inhale",
-      description: "Developed a cross-platform mobile app (iOS, Android) with a team at HackNYU, focusing on mindfulness and aiding mental illness. Built key app features (breathing customization, daily streaks, haptic feedback) and frontend components.",
-      technologies: ["JavaScript", "React-Native", "Expo", "Node.js"],
-      githubUrl: "https://github.com/adamsolimancs/Inhale-Breathing-App",
-    },
-    {
-      title: "Portfolio Website",
-      description: "A minimalist portfolio website showcasing clean design principles and smooth animations. Built with modern web technologies and AI tools.",
-      technologies: ["React", "Vite", "TypeScript", "Lovable.dev", "Tailwind CSS"],
-      liveUrl: "adamesoliman.com",
-      githubUrl: "https://github.com/adamsolimancs/portfolio",
-    },
-    {
-      title: "ClareCreated's Website",
-      description: "Created, engineered, and deployed a full-stack website for ClareCreated, a popular social media influencer. Implemented responsive design, SEO optimization (96/100 score on GoDaddy), and integrated social media features.",
-      technologies: ["React", "Next.js", "Node.js", "TypeScript", "Tailwind CSS"],
-      liveUrl: "clarecreated.com",
-      githubUrl: "https://github.com/adamsolimancs/clarecreated",
-    },
-    {
-      title: "ShAI - NBA Statistics AI Chatbot",
-      description: "Developed an AI chatbot that provides NBA statistics and insights using natural language processing. Integrated with a comprehensive NBA stats database to deliver accurate and timely information.",
-      technologies: ["Python", "Flask", "OpenAI GPT-3", "PostgreSQL"],
-      liveUrl: "shaistats.com",
-      githubUrl: "https://github.com/adamsolimancs/nbai",
-    },
-  ];
+const PROJECTS: Project[] = [
+  {
+    title: "PTI - AI Physical Therapy",
+    description: "Developed a full-stack AI-powered physical therapy platform, designing and implementing a complete architecture from scratch, including: a modern UI, LLM fine tuning, an API, interactive 3D models, and secure, encrypted authentication.",
+    technologies: ["PostgreSQL", "SQLAlchemy", "Mistral AI", "Tailwind CSS", "React", "Next.js", "Python"],
+    githubUrl: "https://github.com/kvilleda12/pt",
+  },
+  {
+    title: "ShAI - NBA Statistics AI Chatbot",
+    description: "Developed an AI chatbot that provides NBA statistics and insights using natural language processing. Integrated with a comprehensive NBA stats database to deliver accurate and timely information.",
+    technologies: ["Next.js", "FastAPI", "OpenAI GPT-3", "PostgreSQL"],
+    liveUrl: "shaistats.com",
+    githubUrl: "https://github.com/adamsolimancs/nbai",
+  },
+  {
+    title: "ClareCreated's Website",
+    description: "Created, engineered, and deployed a full-stack website for ClareCreated, a popular social media influencer. Implemented responsive design, SEO optimization (96/100 score on GoDaddy), and integrated social media features.",
+    technologies: ["React", "Next.js", "Node.js", "TypeScript", "Tailwind CSS"],
+    liveUrl: "clarecreated.com",
+    githubUrl: "https://github.com/adamsolimancs/clarecreated",
+  },
+  {
+    title: "Inhale",
+    description: "Developed a cross-platform mobile app (iOS, Android) with a team at HackNYU, focusing on mindfulness and aiding mental illness. Built key app features (breathing customization, daily streaks, haptic feedback) and frontend components.",
+    technologies: ["JavaScript", "React-Native", "Expo", "Node.js"],
+    githubUrl: "https://github.com/adamsolimancs/Inhale-Breathing-App",
+  },
+  {
+    title: "Portfolio Website",
+    description: "A minimalist portfolio website showcasing clean design principles and smooth animations. Built with modern web technologies and AI tools.",
+    technologies: ["React", "Vite", "TypeScript", "Lovable.dev", "Tailwind CSS"],
+    liveUrl: "adamesoliman.com",
+    githubUrl: "https://github.com/adamsolimancs/portfolio",
+  },
+];
+
+const Portfolio = () => {
+  const currentYear = new Date().getFullYear();
 
   const scrollToProjects = () => {
-    const element = document.getElementById('projects');
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth' });
-    }
+    document.getElementById('projects')?.scrollIntoView({ behavior: 'smooth' });
   };
 
   return (
@@ -129,9 +135,9 @@ const Portfolio = () => {
               full-stack development, design, and problem-solving.
             </p>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {projects.map((project, index) => (
+              {PROJECTS.map((project, index) => (
                 <ProjectCard
-                  key={index}
+                  key={project.title}
                   {...project}
                   className="animate-slide-up"
                   style={{ animationDelay: `${index * 0.1}s` }}
@@ -153,8 +159,7 @@ const Portfolio = () => {
                 <div className="space-y-6 flex flex-col items-center">
                   <div>
                     <p className="text-body mb-4 text-center">
-                      Feel free to reach out through any of these channels.
-                      I typically respond within 24 hours.
+                      Feel free to reach out through any of these channels, I typically respond within 24 hours.
                     </p>
                   </div>
 
@@ -196,7 +201,7 @@ const Portfolio = () => {
         <div className="section-container">
           <div className="text-center">
             <p className="text-caption">
-              © 2025 Adam Soliman.
+              © {currentYear} Adam Soliman.
             </p>
           </div>
         </div>
