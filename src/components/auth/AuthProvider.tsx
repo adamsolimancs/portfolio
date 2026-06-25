@@ -1,10 +1,8 @@
+"use client";
+
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import type { Session } from "@supabase/supabase-js";
-import {
-  isSupabaseConfigured,
-  supabase,
-  upsertCustomerFromSession,
-} from "@/lib/supabase";
+import { isSupabaseConfigured, supabase } from "@/lib/supabase";
 import { AuthContext } from "@/components/auth/useAuth";
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
@@ -26,14 +24,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
       setSession(data.session);
       setLoading(false);
-      void upsertCustomerFromSession(data.session);
     });
 
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, nextSession) => {
       setSession(nextSession);
-      void upsertCustomerFromSession(nextSession);
     });
 
     return () => {

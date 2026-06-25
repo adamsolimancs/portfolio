@@ -1,3 +1,4 @@
+import type { CSSProperties } from "react";
 import { ExternalLink, Github } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
@@ -9,7 +10,7 @@ interface ProjectCardProps {
   githubUrl?: string;
   technologies: string[];
   className?: string;
-  style?: React.CSSProperties;
+  style?: CSSProperties;
 }
 
 const ProjectCard = ({

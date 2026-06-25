@@ -1,17 +1,16 @@
+"use client";
+
 import { Mail, Github, Linkedin, ArrowDown } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { DotPattern } from '@/components/ui/dot-pattern';
+import { Particles } from '@/components/ui/particles';
 import { RainbowButton } from '@/components/ui/rainbow-button';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { useAuth } from '@/components/auth/useAuth';
 import Navigation from '@/components/Navigation';
 import ProjectCard from '@/components/ProjectCard';
-
-type Service = {
-  title: string;
-  features: string[];
-};
+import { SERVICES } from '@/lib/services';
 
 type Project = {
   title: string;
@@ -20,32 +19,6 @@ type Project = {
   liveUrl?: string;
   githubUrl?: string;
 };
-
-const PROFESSIONAL_FEATURES = [
-  "3-5 page website",
-  "Mobile responsive design",
-  "Optimized SEO setup",
-  "Contact form linked to business email",
-  "Hosting",
-  "Maintenance",
-];
-
-const SERVICES: Service[] = [
-  {
-    title: "Professional Website",
-    features: PROFESSIONAL_FEATURES,
-  },
-  {
-    title: "Professional+ Website",
-    features: [
-      "5-8 page website",
-      ...PROFESSIONAL_FEATURES.slice(1),
-      "AI FAQ Chatbot",
-      "Customized design",
-      "Better copy/layout help",
-    ],
-  },
-];
 
 const PROJECTS: Project[] = [
   {
@@ -77,7 +50,7 @@ const PROJECTS: Project[] = [
   {
     title: "Portfolio Website",
     description: "A minimalist portfolio website showcasing clean design principles and smooth animations. Built with modern web technologies and AI tools.",
-    technologies: ["React", "Vite", "TypeScript", "Lovable.dev", "Tailwind CSS"],
+    technologies: ["Next.js", "React", "TypeScript", "Tailwind CSS", "Supabase", "shadcn/ui"],
     liveUrl: "adamesoliman.com",
     githubUrl: "https://github.com/adamsolimancs/portfolio",
   },
@@ -99,11 +72,24 @@ const Portfolio = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      <Navigation />
+    <div className="relative min-h-screen overflow-hidden bg-background">
+      <Particles
+        className="fixed inset-0 z-0 opacity-70"
+        quantity={160}
+        staticity={35}
+        ease={80}
+        size={0.8}
+        color="#111111"
+        vx={0.02}
+        vy={-0.02}
+        refresh
+      />
 
-      {/* Hero Section */}
-      <section id="hero" className="section-spacing min-h-screen flex items-center">
+      <div className="relative z-10">
+        <Navigation />
+
+        {/* Hero Section */}
+        <section id="hero" className="section-spacing min-h-screen flex items-center">
         <div className="section-container">
           <div className="max-w-4xl">
             <div className="animate-fade-in">
@@ -166,10 +152,10 @@ const Portfolio = () => {
             </div>
           </div>
         </div>
-      </section>
+        </section>
 
-      {/* Services Section */}
-      <section id="services" className="section-spacing relative overflow-hidden">
+        {/* Services Section */}
+        <section id="services" className="section-spacing relative overflow-hidden">
         <DotPattern
           width={24}
           height={24}
@@ -187,7 +173,7 @@ const Portfolio = () => {
               <span className="block">
                 Contact me at{' '}
                 <a href="mailto:aes10130@nyu.edu" className="link-minimal">
-                  aes10130@nyu.edu
+                  aes10130 (at) nyu.edu
                 </a>
                 .
               </span>
@@ -196,7 +182,7 @@ const Portfolio = () => {
               {SERVICES.map((service) => (
                 <article
                   key={service.title}
-                  className="card-minimal p-5 hover:scale-[1.02] hover:-translate-y-2"
+                  className="card-minimal p-5 pb-7 pl-7 md:pb-8 md:pl-8 hover:scale-[1.02] hover:-translate-y-2"
                 >
                   <div className="space-y-5">
                     <div>
@@ -222,7 +208,7 @@ const Portfolio = () => {
             </div>
             <div className="mt-12 text-center">
               <Button className="bg-black text-white hover:bg-black/90" size="lg" asChild>
-                <Link to={isSignedIn ? "/dashboard" : "/sign-in"}>
+                <Link href={isSignedIn ? "/dashboard" : "/sign-in"}>
                   {isSignedIn ? "View Dashboard" : authLoading ? "Checking session..." : "Sign in to view dashboard"}
                 </Link>
               </Button>
@@ -234,10 +220,10 @@ const Portfolio = () => {
             </div>
           </div>
         </div>
-      </section>
+        </section>
 
-      {/* Projects Section */}
-      <section id="projects" className="section-spacing">
+        {/* Projects Section */}
+        <section id="projects" className="section-spacing">
         <div className="section-container">
           <div className="animate-slide-up">
             <h2 className="text-heading mb-4 text-center">Projects</h2>
@@ -257,10 +243,10 @@ const Portfolio = () => {
             </div>
           </div>
         </div>
-      </section>
+        </section>
 
-      {/* Contact Section */}
-      <section id="contact" className="section-spacing">
+        {/* Contact Section */}
+        <section id="contact" className="section-spacing">
         <div className="section-container">
           <div className="max-w-4xl mx-auto">
             <div className="animate-slide-up">
@@ -305,10 +291,10 @@ const Portfolio = () => {
             </div>
           </div>
         </div>
-      </section>
+        </section>
 
-      {/* Footer */}
-      <footer className="border-t border-border py-8">
+        {/* Footer */}
+        <footer className="border-t border-border py-8">
         <div className="section-container">
           <div className="text-center">
             <p className="text-caption">
@@ -316,7 +302,8 @@ const Portfolio = () => {
             </p>
           </div>
         </div>
-      </footer>
+        </footer>
+      </div>
     </div>
   );
 };

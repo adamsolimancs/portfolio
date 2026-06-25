@@ -1,9 +1,19 @@
-import { Navigate, useLocation } from "react-router-dom";
+"use client";
+
+import { useEffect, type ReactNode } from "react";
+import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "@/components/auth/useAuth";
 
-const ProtectedRoute = ({ children }: { children: JSX.Element }) => {
+const ProtectedRoute = ({ children }: { children: ReactNode }) => {
   const { configured, loading, user } = useAuth();
-  const location = useLocation();
+  const pathname = usePathname();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!loading && (!configured || !user)) {
+      router.replace(`/sign-in?redirect=${encodeURIComponent(pathname)}`);
+    }
+  }, [configured, loading, pathname, router, user]);
 
   if (loading) {
     return (
@@ -14,7 +24,7 @@ const ProtectedRoute = ({ children }: { children: JSX.Element }) => {
   }
 
   if (!configured || !user) {
-    return <Navigate to="/sign-in" replace state={{ from: location }} />;
+    return null;
   }
 
   return children;
