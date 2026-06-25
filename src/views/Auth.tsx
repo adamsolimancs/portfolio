@@ -43,7 +43,7 @@ const Auth = ({ mode }: { mode: AuthMode }) => {
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [message, setMessage] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const isSignUp = mode === "sign-up";
@@ -57,23 +57,25 @@ const Auth = ({ mode }: { mode: AuthMode }) => {
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setError("");
-    setMessage("");
 
     if (!supabase) {
       setError("Add your Supabase URL and anon key before signing in.");
       return;
     }
 
+    if (isSignUp && password !== confirmPassword) {
+      setError("Passwords do not match.");
+      return;
+    }
+
     setSubmitting(true);
 
-    const authRedirectTo = `${window.location.origin}/dashboard`;
     const { data, error: authError } = isSignUp
       ? await supabase.auth.signUp({
           email,
           password,
           options: {
             data: { customer_signup: true, full_name: fullName },
-            emailRedirectTo: authRedirectTo,
           },
         })
       : await supabase.auth.signInWithPassword({ email, password });
@@ -90,12 +92,13 @@ const Auth = ({ mode }: { mode: AuthMode }) => {
       return;
     }
 
-    setMessage("Check your email to confirm your account, then sign in.");
+    if (isSignUp) {
+      router.replace(redirectTo);
+    }
   };
 
   const handleGoogleSignIn = async () => {
     setError("");
-    setMessage("");
 
     if (!supabase) {
       setError("Add your Supabase URL and anon key before using Google sign in.");
@@ -176,9 +179,20 @@ const Auth = ({ mode }: { mode: AuthMode }) => {
               required
               minLength={6}
             />
+            {isSignUp && (
+              <Input
+                className={inputClassName}
+                type="password"
+                value={confirmPassword}
+                onChange={(event) => setConfirmPassword(event.target.value)}
+                placeholder="Confirm password"
+                autoComplete="new-password"
+                required
+                minLength={6}
+              />
+            )}
 
             {error && <p className="text-sm text-destructive">{error}</p>}
-            {message && <p className="text-sm text-muted-foreground">{message}</p>}
 
             <Button
               type="submit"

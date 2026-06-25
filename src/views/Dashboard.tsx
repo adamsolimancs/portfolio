@@ -97,6 +97,20 @@ const statusLabel = (status: string) =>
     .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
     .join(" ");
 
+const parseApiResponse = async <T,>(response: Response): Promise<T | null> => {
+  const text = await response.text();
+
+  if (!text) {
+    return null;
+  }
+
+  try {
+    return JSON.parse(text) as T;
+  } catch {
+    return null;
+  }
+};
+
 const Dashboard = () => {
   const { session, user } = useAuth();
   const [dashboard, setDashboard] = useState<DashboardData | null>(null);
@@ -135,10 +149,18 @@ const Dashboard = () => {
     const response = await fetch("/api/dashboard", {
       headers: authHeaders,
     });
-    const payload = await response.json();
+    const payload = await parseApiResponse<DashboardData & { error?: string }>(
+      response,
+    );
 
     if (!response.ok) {
-      setError(payload.error || "Unable to load dashboard.");
+      setError(payload?.error || "Unable to load dashboard.");
+      setLoading(false);
+      return;
+    }
+
+    if (!payload) {
+      setError("Unable to load dashboard.");
       setLoading(false);
       return;
     }
@@ -175,10 +197,12 @@ const Dashboard = () => {
       },
       body: JSON.stringify({ serviceTierId }),
     });
-    const payload = await response.json();
+    const payload = await parseApiResponse<{ error?: string; url?: string }>(
+      response,
+    );
 
-    if (!response.ok || !payload.url) {
-      setError(payload.error || "Unable to start checkout.");
+    if (!response.ok || !payload?.url) {
+      setError(payload?.error || "Unable to start checkout.");
       setCheckoutLoading(null);
       return;
     }

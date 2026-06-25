@@ -34,12 +34,20 @@ export const getStripePriceId = (serviceTierId: ServiceTierId) => {
       ? process.env.STRIPE_PROFESSIONAL_PRICE_ID
       : process.env.STRIPE_PROFESSIONAL_PLUS_PRICE_ID;
 
-  if (!priceId?.trim()) {
-    const service = getServiceById(serviceTierId);
+  const service = getServiceById(serviceTierId);
+  const trimmedPriceId = priceId?.trim();
+
+  if (!trimmedPriceId) {
     throw new Error(
       `Missing Stripe price ID for ${service?.title || serviceTierId}.`,
     );
   }
 
-  return priceId.trim();
+  if (!trimmedPriceId.startsWith("price_")) {
+    throw new Error(
+      `Stripe price ID for ${service?.title || serviceTierId} must start with "price_".`,
+    );
+  }
+
+  return trimmedPriceId;
 };
