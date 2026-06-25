@@ -6,6 +6,7 @@ import {
   createSupabaseAdminClient,
   getAuthenticatedUser,
   isServerSupabaseConfigured,
+  upsertCustomerForUser,
 } from "@/lib/server/supabase";
 
 export const dynamic = "force-dynamic";
@@ -65,6 +66,12 @@ export async function POST(request: Request) {
   }
 
   const supabase = createSupabaseAdminClient();
+  const customerError = await upsertCustomerForUser(supabase, user);
+
+  if (customerError) {
+    return NextResponse.json({ error: customerError.message }, { status: 500 });
+  }
+
   const { data: requestRow, error } = await supabase
     .from("ServiceRequest")
     .insert({

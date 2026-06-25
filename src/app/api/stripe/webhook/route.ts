@@ -3,6 +3,7 @@ import Stripe from "stripe";
 import {
   createSupabaseAdminClient,
   isServerSupabaseConfigured,
+  upsertCustomerForUser,
 } from "@/lib/server/supabase";
 import { getStripe } from "@/lib/server/stripe";
 import { subscriptionToBillingUpdate } from "@/lib/server/subscriptions";
@@ -18,7 +19,25 @@ const upsertSubscription = async (
   const update = subscriptionToBillingUpdate(subscription);
 
   if (supabaseUserId) {
-    await supabase.from("CustomerBilling").upsert(
+    const {
+      data: { user },
+      error: userError,
+    } = await supabase.auth.admin.getUserById(supabaseUserId);
+
+    if (userError || !user) {
+      throw new Error(
+        userError?.message ||
+          `Unable to find Supabase user ${supabaseUserId} for Stripe billing.`,
+      );
+    }
+
+    const customerError = await upsertCustomerForUser(supabase, user);
+
+    if (customerError) {
+      throw new Error(customerError.message);
+    }
+
+    const { error } = await supabase.from("CustomerBilling").upsert(
       {
         customer_id: supabaseUserId,
         stripe_customer_id: customerId,
@@ -26,13 +45,22 @@ const upsertSubscription = async (
       },
       { onConflict: "customer_id" },
     );
+
+    if (error) {
+      throw new Error(error.message);
+    }
+
     return;
   }
 
-  await supabase
+  const { error } = await supabase
     .from("CustomerBilling")
     .update(update)
     .eq("stripe_customer_id", customerId);
+
+  if (error) {
+    throw new Error(error.message);
+  }
 };
 
 export async function POST(request: Request) {

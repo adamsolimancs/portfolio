@@ -4,6 +4,7 @@ import {
   createSupabaseAdminClient,
   getAuthenticatedUser,
   isServerSupabaseConfigured,
+  upsertCustomerForUser,
 } from "@/lib/server/supabase";
 import { getSiteUrl, getStripe, getStripePriceId } from "@/lib/server/stripe";
 
@@ -40,6 +41,14 @@ export async function POST(request: Request) {
     const supabase = createSupabaseAdminClient();
     const stripe = getStripe();
     const siteUrl = getSiteUrl();
+    const customerError = await upsertCustomerForUser(supabase, user);
+
+    if (customerError) {
+      return NextResponse.json(
+        { error: customerError.message },
+        { status: 500 },
+      );
+    }
 
     const { data: existingBilling, error: billingError } = await supabase
       .from("CustomerBilling")

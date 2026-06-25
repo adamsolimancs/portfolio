@@ -1,6 +1,10 @@
 import "server-only";
 
-import { createClient, type User } from "@supabase/supabase-js";
+import {
+  createClient,
+  type SupabaseClient,
+  type User,
+} from "@supabase/supabase-js";
 import type { Database } from "@/lib/supabase";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim();
@@ -67,4 +71,30 @@ export const getAuthenticatedUser = async (
   }
 
   return data.user;
+};
+
+const metadataValue = (value: unknown) =>
+  typeof value === "string" && value.trim() ? value.trim() : null;
+
+export const upsertCustomerForUser = async (
+  supabase: SupabaseClient<Database>,
+  user: Pick<User, "id" | "email" | "user_metadata" | "app_metadata">,
+) => {
+  const { error } = await supabase.from("Customer").upsert(
+    {
+      id: user.id,
+      email: user.email ?? null,
+      full_name:
+        metadataValue(user.user_metadata?.full_name) ??
+        metadataValue(user.user_metadata?.name),
+      avatar_url:
+        metadataValue(user.user_metadata?.avatar_url) ??
+        metadataValue(user.user_metadata?.picture),
+      provider: metadataValue(user.app_metadata?.provider),
+      updated_at: new Date().toISOString(),
+    },
+    { onConflict: "id" },
+  );
+
+  return error;
 };
