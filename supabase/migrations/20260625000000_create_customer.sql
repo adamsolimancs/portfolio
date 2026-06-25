@@ -78,12 +78,14 @@ as $$
   );
 $$;
 
+drop policy if exists "Customers can read their own row" on public."Customer";
 create policy "Customers can read their own row"
   on public."Customer"
   for select
   to authenticated
   using ((select auth.uid()) = id or (select public.is_admin()));
 
+drop policy if exists "Customers can update their own row" on public."Customer";
 create policy "Customers can update their own row"
   on public."Customer"
   for update
@@ -91,24 +93,28 @@ create policy "Customers can update their own row"
   using ((select auth.uid()) = id)
   with check ((select auth.uid()) = id);
 
+drop policy if exists "Customers can read their own billing row" on public."CustomerBilling";
 create policy "Customers can read their own billing row"
   on public."CustomerBilling"
   for select
   to authenticated
   using ((select auth.uid()) = customer_id or (select public.is_admin()));
 
+drop policy if exists "Customers can read their own service requests" on public."ServiceRequest";
 create policy "Customers can read their own service requests"
   on public."ServiceRequest"
   for select
   to authenticated
   using ((select auth.uid()) = client_id or (select public.is_admin()));
 
+drop policy if exists "Customers can create their own service requests" on public."ServiceRequest";
 create policy "Customers can create their own service requests"
   on public."ServiceRequest"
   for insert
   to authenticated
   with check ((select auth.uid()) = client_id);
 
+drop policy if exists "Admins can update service request status" on public."ServiceRequest";
 create policy "Admins can update service request status"
   on public."ServiceRequest"
   for update
@@ -116,6 +122,7 @@ create policy "Admins can update service request status"
   using ((select public.is_admin()))
   with check ((select public.is_admin()));
 
+drop policy if exists "Admins can read their own admin row" on public."AdminUser";
 create policy "Admins can read their own admin row"
   on public."AdminUser"
   for select
