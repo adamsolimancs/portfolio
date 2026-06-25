@@ -1,8 +1,17 @@
 import { Mail, Github, Linkedin, ArrowDown } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
+import { DotPattern } from '@/components/ui/dot-pattern';
+import { RainbowButton } from '@/components/ui/rainbow-button';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
+import { useAuth } from '@/components/auth/useAuth';
 import Navigation from '@/components/Navigation';
 import ProjectCard from '@/components/ProjectCard';
+
+type Service = {
+  title: string;
+  features: string[];
+};
 
 type Project = {
   title: string;
@@ -12,6 +21,32 @@ type Project = {
   githubUrl?: string;
 };
 
+const PROFESSIONAL_FEATURES = [
+  "3-5 page website",
+  "Mobile responsive design",
+  "Optimized SEO setup",
+  "Contact form linked to business email",
+  "Hosting",
+  "Maintenance",
+];
+
+const SERVICES: Service[] = [
+  {
+    title: "Professional Website",
+    features: PROFESSIONAL_FEATURES,
+  },
+  {
+    title: "Professional+ Website",
+    features: [
+      "5-8 page website",
+      ...PROFESSIONAL_FEATURES.slice(1),
+      "AI FAQ Chatbot",
+      "Customized design",
+      "Better copy/layout help",
+    ],
+  },
+];
+
 const PROJECTS: Project[] = [
   {
     title: "PTI - AI Physical Therapy",
@@ -20,10 +55,10 @@ const PROJECTS: Project[] = [
     githubUrl: "https://github.com/kvilleda12/pt",
   },
   {
-    title: "ShAI - NBA Statistics AI Chatbot",
-    description: "Developed an AI chatbot that provides NBA statistics and insights using natural language processing. Integrated with a comprehensive NBA stats database to deliver accurate and timely information.",
-    technologies: ["Next.js", "FastAPI", "OpenAI GPT-3", "PostgreSQL"],
-    liveUrl: "shaistats.com",
+    title: "ShAI - NBA Statistics Platform",
+    description: "Developed a full-stack NBA statistics platform that ingested live NBA data and used machine learning to calculate player ratings, team ratings, and game predictions.",
+    technologies: ["Next.js", "FastAPI", "PostgreSQL", "Machine Learning"],
+    liveUrl: "https://shaistats.vercel.app/",
     githubUrl: "https://github.com/adamsolimancs/nbai",
   },
   {
@@ -50,9 +85,17 @@ const PROJECTS: Project[] = [
 
 const Portfolio = () => {
   const currentYear = new Date().getFullYear();
+  const { loading: authLoading, user } = useAuth();
+  const isSignedIn = Boolean(user);
+  const customerLabel =
+    user?.user_metadata?.full_name || user?.user_metadata?.name || user?.email;
 
   const scrollToProjects = () => {
     document.getElementById('projects')?.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  const scrollToServices = () => {
+    document.getElementById('services')?.scrollIntoView({ behavior: 'smooth' });
   };
 
   return (
@@ -101,11 +144,11 @@ const Portfolio = () => {
                   </p>
 
                   <div className="flex flex-col sm:flex-row gap-4 mb-16 justify-center items-center w-full lg:pr-32">
-                    <Button onClick={scrollToProjects} size="lg">
+                    <RainbowButton onClick={scrollToServices} size="lg">
+                      Explore Services
+                    </RainbowButton>
+                    <Button variant="outline" onClick={scrollToProjects} size="lg">
                       View My Work
-                    </Button>
-                    <Button variant="outline" size="lg" asChild>
-                      <a href="#contact">Get In Touch</a>
                     </Button>
                   </div>
                 </div>
@@ -113,13 +156,81 @@ const Portfolio = () => {
 
               <div className="text-center">
                 <button
-                  onClick={scrollToProjects}
+                  onClick={scrollToServices}
                   className="animate-float hover:text-primary transition-colors"
-                  aria-label="Scroll to projects"
+                  aria-label="Scroll to services"
                 >
                   <ArrowDown className="w-6 h-6" />
                 </button>
               </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Services Section */}
+      <section id="services" className="section-spacing relative overflow-hidden">
+        <DotPattern
+          width={24}
+          height={24}
+          cx={1.5}
+          cy={1.5}
+          cr={1.5}
+          className="[mask-image:radial-gradient(760px_circle_at_center,white,transparent)] opacity-65"
+        />
+        <div className="section-container relative z-10">
+          <div className="animate-slide-up">
+            <h2 className="text-heading mb-4 text-center">Services</h2>
+            <p className="text-body mb-12 max-w-2xl text-center mx-auto">
+              I design and develop web services for small to medium businesses,
+              specifically optimized for SEO, google indexing, and AI discovery.
+              <span className="block">
+                Contact me at{' '}
+                <a href="mailto:aes10130@nyu.edu" className="link-minimal">
+                  aes10130@nyu.edu
+                </a>
+                .
+              </span>
+            </p>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
+              {SERVICES.map((service) => (
+                <article
+                  key={service.title}
+                  className="card-minimal p-5 hover:scale-[1.02] hover:-translate-y-2"
+                >
+                  <div className="space-y-5">
+                    <div>
+                      <h3 className="text-heading text-xl md:text-2xl mb-2">
+                        {service.title}
+                      </h3>
+                    </div>
+
+                    <ul className="space-y-2.5">
+                      {service.features.map((feature) => (
+                        <li
+                          key={feature}
+                          className="flex gap-3 text-sm md:text-base text-muted-foreground"
+                        >
+                          <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-primary" />
+                          <span>{feature}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </article>
+              ))}
+            </div>
+            <div className="mt-12 text-center">
+              <Button className="bg-black text-white hover:bg-black/90" size="lg" asChild>
+                <Link to={isSignedIn ? "/dashboard" : "/sign-in"}>
+                  {isSignedIn ? "View Dashboard" : authLoading ? "Checking session..." : "Sign in to view dashboard"}
+                </Link>
+              </Button>
+              {isSignedIn && (
+                <p className="mt-3 text-sm text-muted-foreground">
+                  Signed in{customerLabel ? ` as ${customerLabel}` : ""}.
+                </p>
+              )}
             </div>
           </div>
         </div>

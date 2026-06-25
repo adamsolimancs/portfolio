@@ -22,6 +22,8 @@ const ProjectCard = ({
   className = "",
   style
 }: ProjectCardProps) => {
+  const liveHref = liveUrl?.startsWith('http') ? liveUrl : `https://${liveUrl}`;
+
   return (
     <div className={`card-minimal group ${className}`} style={style}>
       {image && (
@@ -53,7 +55,7 @@ const ProjectCard = ({
           {liveUrl && (
             <Button variant="outline" size="sm" asChild>
               <a
-                href={`https://${liveUrl}`}
+                href={liveHref}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center gap-2"
