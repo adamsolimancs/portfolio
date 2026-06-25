@@ -102,7 +102,7 @@ export async function POST(request: Request) {
       allow_promotion_codes: true,
       line_items: [
         {
-          price: getStripePriceId(service.id),
+          price: await getStripePriceId(stripe, service.id),
           quantity: 1,
         },
       ],
