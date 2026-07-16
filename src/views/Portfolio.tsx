@@ -21,6 +21,12 @@ type Project = {
 
 const PROJECTS: Project[] = [
   {
+    title: "Forgd",
+    description: "Build in public with Forgd: the intersection between social media, AI, and project management. A platform where skills speak louder than a resume, helping people connect, collaborate on projects, and meet future cofounders.",
+    technologies: ["Next.js", "React", "DuckDB", "OpenAI", "pgvector", "Supabase"],
+    liveUrl: "https://www.forgdhq.com/",
+  },
+  {
     title: "PTI - AI Physical Therapy",
     description: "Developed a full-stack AI-powered physical therapy platform, designing and implementing a complete architecture from scratch, including: a modern UI, LLM fine tuning, an API, interactive 3D models, and secure, encrypted authentication.",
     technologies: ["PostgreSQL", "SQLAlchemy", "Mistral AI", "Tailwind CSS", "React", "Next.js", "Python"],
@@ -45,13 +51,6 @@ const PROJECTS: Project[] = [
     description: "Developed a cross-platform mobile app (iOS, Android) with a team at HackNYU, focusing on mindfulness and aiding mental illness. Built key app features (breathing customization, daily streaks, haptic feedback) and frontend components.",
     technologies: ["JavaScript", "React-Native", "Expo", "Node.js"],
     githubUrl: "https://github.com/adamsolimancs/Inhale-Breathing-App",
-  },
-  {
-    title: "Portfolio Website",
-    description: "A minimalist portfolio website showcasing clean design principles and smooth animations. Built with modern web technologies and AI tools.",
-    technologies: ["Next.js", "React", "TypeScript", "Tailwind CSS", "Supabase", "shadcn/ui"],
-    liveUrl: "adamesoliman.com",
-    githubUrl: "https://github.com/adamsolimancs/portfolio",
   },
 ];
 
@@ -222,12 +221,12 @@ const Portfolio = () => {
               Here are some of my recent projects that showcase my skills in
               full-stack development, design, and problem-solving.
             </p>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div className="flex flex-wrap justify-center gap-8">
               {PROJECTS.map((project, index) => (
                 <ProjectCard
                   key={project.title}
                   {...project}
-                  className="animate-slide-up"
+                  className="animate-slide-up w-full md:w-[calc((100%-2rem)/2)] lg:w-[calc((100%-4rem)/3)]"
                   style={{ animationDelay: `${index * 0.1}s` }}
                 />
               ))}
