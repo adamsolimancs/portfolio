@@ -23,16 +23,22 @@ const findLatestSubscription = async (stripeCustomerId: string) => {
     customer: stripeCustomerId,
     status: "all",
     limit: 10,
-    expand: ["data.items.data.price.product"],
   });
 
-  return (
+  const subscription =
     subscriptions.data.find((subscription) =>
       isActiveSubscriptionStatus(subscription.status),
     ) ??
     subscriptions.data.sort((a, b) => b.created - a.created)[0] ??
-    null
-  );
+    null;
+
+  if (!subscription) {
+    return null;
+  }
+
+  return getStripe().subscriptions.retrieve(subscription.id, {
+    expand: ["items.data.price.product"],
+  });
 };
 
 export async function GET(request: Request) {

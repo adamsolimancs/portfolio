@@ -12,6 +12,7 @@ export type DashboardSubscription = {
   startedAt: string | null;
   currentPeriodStart: string | null;
   currentPeriodEnd: string | null;
+  cancelAt: string | null;
   cancelAtPeriodEnd: boolean;
 };
 
@@ -43,6 +44,7 @@ export const toDashboardSubscription = (
     startedAt: secondsToIso(subscription.start_date),
     currentPeriodStart: secondsToIso(item?.current_period_start),
     currentPeriodEnd: secondsToIso(item?.current_period_end),
+    cancelAt: secondsToIso(subscription.cancel_at),
     cancelAtPeriodEnd: subscription.cancel_at_period_end,
   };
 };
@@ -63,6 +65,7 @@ export const billingToDashboardSubscription = (
     startedAt: billing.subscription_started_at,
     currentPeriodStart: billing.current_period_start,
     currentPeriodEnd: billing.current_period_end,
+    cancelAt: billing.cancel_at_period_end ? billing.current_period_end : null,
     cancelAtPeriodEnd: billing.cancel_at_period_end,
   };
 };

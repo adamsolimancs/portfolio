@@ -8,9 +8,15 @@ import {
 
 export const dynamic = "force-dynamic";
 
-const updateSchema = z.object({
-  status: z.enum(["open", "in_progress", "completed"]),
-});
+const updateSchema = z
+  .object({
+    status: z.enum(["open", "in_progress", "completed"]).optional(),
+    adminComment: z.string().trim().max(2000).optional(),
+  })
+  .refine(
+    (update) => update.status !== undefined || update.adminComment !== undefined,
+    { message: "No service request changes were provided." },
+  );
 
 export async function PATCH(
   request: Request,
@@ -32,7 +38,10 @@ export async function PATCH(
   const parsed = updateSchema.safeParse(await request.json().catch(() => null));
 
   if (!parsed.success) {
-    return NextResponse.json({ error: "Invalid status." }, { status: 400 });
+    return NextResponse.json(
+      { error: "Invalid service request update." },
+      { status: 400 },
+    );
   }
 
   const supabase = createSupabaseAdminClient();
@@ -51,13 +60,21 @@ export async function PATCH(
   }
 
   const { id } = await params;
+  const update = {
+    ...(parsed.data.status
+      ? {
+          status: parsed.data.status,
+          completed_at:
+            parsed.data.status === "completed" ? new Date().toISOString() : null,
+        }
+      : {}),
+    ...(parsed.data.adminComment !== undefined
+      ? { admin_comment: parsed.data.adminComment || null }
+      : {}),
+  };
   const { data, error } = await supabase
     .from("ServiceRequest")
-    .update({
-      status: parsed.data.status,
-      completed_at:
-        parsed.data.status === "completed" ? new Date().toISOString() : null,
-    })
+    .update(update)
     .eq("id", id)
     .select("*")
     .single();

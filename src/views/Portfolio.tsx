@@ -3,7 +3,6 @@
 import { Mail, Github, Linkedin, ArrowDown } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { DotPattern } from '@/components/ui/dot-pattern';
 import { Particles } from '@/components/ui/particles';
 import { RainbowButton } from '@/components/ui/rainbow-button';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
@@ -155,15 +154,7 @@ const Portfolio = () => {
         </section>
 
         {/* Services Section */}
-        <section id="services" className="section-spacing relative overflow-hidden">
-        <DotPattern
-          width={24}
-          height={24}
-          cx={1.5}
-          cy={1.5}
-          cr={1.5}
-          className="[mask-image:radial-gradient(760px_circle_at_center,white,transparent)] opacity-65"
-        />
+        <section id="services" className="section-spacing relative overflow-hidden bg-background">
         <div className="section-container relative z-10">
           <div className="animate-slide-up">
             <h2 className="text-heading mb-4 text-center">Services</h2>

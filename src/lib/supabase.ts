@@ -39,6 +39,7 @@ export type ServiceRequest = {
   description: string;
   priority: string;
   status: string;
+  admin_comment: string | null;
   completed_at: string | null;
   created_at: string;
 };
