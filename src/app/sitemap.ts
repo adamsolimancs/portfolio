@@ -4,6 +4,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
   return [
     {
       url: "https://adamesoliman.com/",
+      changeFrequency: "monthly",
       priority: 1,
     },
   ];
