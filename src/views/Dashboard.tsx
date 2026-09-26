@@ -68,7 +68,7 @@ type DashboardData = {
     customers: Customer[];
     billings: CustomerBilling[];
     serviceRequests: ServiceRequest[];
-    totalRecurringRevenueCents: number;
+    totalRecurringRevenueCents: number | null;
     totalRevenueCents: number;
     currency: string;
     revenueNote: string;
@@ -125,6 +125,64 @@ const parseApiResponse = async <T,>(response: Response): Promise<T | null> => {
     return null;
   }
 };
+
+const CustomerTable = ({ customers, billingByCustomerId }: {
+  customers: Customer[];
+  billingByCustomerId: Map<string, CustomerBilling>;
+}) => customers.length === 0 ? <p className="text-body">No customers.</p> : (
+  <Table>
+    <TableHeader>
+      <TableRow>
+        <TableHead>Customer</TableHead>
+        <TableHead>Plan</TableHead>
+        <TableHead>Status</TableHead>
+        <TableHead>Rate</TableHead>
+        <TableHead>Renewal</TableHead>
+        <TableHead>Joined</TableHead>
+      </TableRow>
+    </TableHeader>
+    <TableBody>
+      {customers.map((customer) => {
+        const billing = billingByCustomerId.get(customer.id);
+
+        return (
+          <TableRow key={customer.id}>
+            <TableCell>
+              <p className="font-medium">
+                {customer.full_name || "No name"}
+              </p>
+              <p className="mt-1 text-sm text-muted-foreground">
+                {customer.email || "No email"}
+              </p>
+            </TableCell>
+            <TableCell>
+              <p>
+                {billing?.stripe_product_name || "No active plan"}
+              </p>
+              {billing?.stripe_price_id && (
+                <p className="mt-1 text-xs text-muted-foreground">
+                  {billing.stripe_price_id}
+                </p>
+              )}
+            </TableCell>
+            <TableCell>
+              {billing
+                ? statusLabel(billing.subscription_status)
+                : "No billing record"}
+            </TableCell>
+            <TableCell>
+              {formatCurrency(billing?.monthly_rate_cents)}
+            </TableCell>
+            <TableCell>
+              {formatDate(billing?.current_period_end)}
+            </TableCell>
+            <TableCell>{formatDate(customer.created_at)}</TableCell>
+          </TableRow>
+        );
+      })}
+    </TableBody>
+  </Table>
+);
 
 const Dashboard = () => {
   const { session, user } = useAuth();
@@ -389,6 +447,13 @@ const Dashboard = () => {
       billing,
     ]) ?? [],
   );
+
+  const activeCustomers: Customer[] = [];
+  const inactiveCustomers: Customer[] = [];
+  for (const customer of dashboard?.admin?.customers ?? []) {
+    const status = billingByCustomerId.get(customer.id)?.subscription_status;
+    (status === "active" || status === "trialing" ? activeCustomers : inactiveCustomers).push(customer);
+  }
 
   if (loading) {
     return (
@@ -701,58 +766,19 @@ const Dashboard = () => {
 
             <article className="card-minimal overflow-hidden">
               <h3 className="mb-4 text-xl font-medium">Customers</h3>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Customer</TableHead>
-                    <TableHead>Plan</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Rate</TableHead>
-                    <TableHead>Renewal</TableHead>
-                    <TableHead>Joined</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {dashboard.admin.customers.map((customer) => {
-                    const billing = billingByCustomerId.get(customer.id);
-
-                    return (
-                      <TableRow key={customer.id}>
-                        <TableCell>
-                          <p className="font-medium">
-                            {customer.full_name || "No name"}
-                          </p>
-                          <p className="mt-1 text-sm text-muted-foreground">
-                            {customer.email || "No email"}
-                          </p>
-                        </TableCell>
-                        <TableCell>
-                          <p>
-                            {billing?.stripe_product_name || "No active plan"}
-                          </p>
-                          {billing?.stripe_price_id && (
-                            <p className="mt-1 text-xs text-muted-foreground">
-                              {billing.stripe_price_id}
-                            </p>
-                          )}
-                        </TableCell>
-                        <TableCell>
-                          {billing
-                            ? statusLabel(billing.subscription_status)
-                            : "No billing record"}
-                        </TableCell>
-                        <TableCell>
-                          {formatCurrency(billing?.monthly_rate_cents)}
-                        </TableCell>
-                        <TableCell>
-                          {formatDate(billing?.current_period_end)}
-                        </TableCell>
-                        <TableCell>{formatDate(customer.created_at)}</TableCell>
-                      </TableRow>
-                    );
-                  })}
-                </TableBody>
-              </Table>
+              <h4 className="mb-3 text-sm font-medium">Active users ({activeCustomers.length})</h4>
+              <CustomerTable customers={activeCustomers} billingByCustomerId={billingByCustomerId} />
+              <Collapsible className="mt-6 border-t border-border pt-4">
+                <CollapsibleTrigger asChild>
+                  <Button variant="ghost" className="group px-0">
+                    <ChevronDown className="h-4 w-4 transition-transform group-data-[state=open]:rotate-180" aria-hidden="true" />
+                    Non-active users ({inactiveCustomers.length})
+                  </Button>
+                </CollapsibleTrigger>
+                <CollapsibleContent className="pt-4">
+                  <CustomerTable customers={inactiveCustomers} billingByCustomerId={billingByCustomerId} />
+                </CollapsibleContent>
+              </Collapsible>
             </article>
 
             <article className="card-minimal overflow-hidden">

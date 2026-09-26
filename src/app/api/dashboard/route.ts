@@ -10,13 +10,25 @@ import {
   billingToDashboardSubscription,
   isActiveSubscriptionStatus,
   subscriptionToBillingUpdate,
-  toDashboardSubscription,
+  getDashboardSubscription,
 } from "@/lib/server/subscriptions";
 import type { CustomerBilling } from "@/lib/supabase";
 
 export const dynamic = "force-dynamic";
 
 const currency = "usd";
+
+const listSubscriptions = async () => {
+  const subscriptions = [];
+  for await (const subscription of getStripe().subscriptions.list({
+    status: "all",
+    limit: 100,
+    expand: ["data.items.data.price.product"],
+  })) {
+    subscriptions.push(subscription);
+  }
+  return subscriptions;
+};
 
 const findLatestSubscription = async (stripeCustomerId: string) => {
   const subscriptions = await getStripe().subscriptions.list({
@@ -106,8 +118,8 @@ export async function GET(request: Request) {
         );
 
         if (stripeSubscription) {
-          const update = subscriptionToBillingUpdate(stripeSubscription);
-          subscription = toDashboardSubscription(stripeSubscription);
+          subscription = await getDashboardSubscription(stripeSubscription);
+          const update = subscriptionToBillingUpdate(subscription);
 
           await supabase
             .from("CustomerBilling")
@@ -146,7 +158,8 @@ export async function GET(request: Request) {
         );
       }
 
-      let totalRecurringRevenueCents = 0;
+      let totalRecurringRevenueCents: number | null = null;
+      let refreshedBillings = (billings ?? []) as CustomerBilling[];
       let totalRevenueCents = 0;
       let revenueNote =
         "Stripe revenue is unavailable; customer and request data are still current.";
@@ -154,37 +167,55 @@ export async function GET(request: Request) {
       try {
         const [charges, subscriptions] = await Promise.all([
           getStripe().charges.list({ limit: 100 }),
-          getStripe().subscriptions.list({ status: "all", limit: 100 }),
+          listSubscriptions(),
         ]);
 
-        totalRecurringRevenueCents = subscriptions.data
-          .filter((item) => isActiveSubscriptionStatus(item.status))
-          .reduce(
-            (sum, item) =>
-              sum +
-              item.items.data.reduce(
-                (itemSum, subscriptionItem) =>
-                  itemSum +
-                  (subscriptionItem.price.unit_amount ?? 0) *
-                    (subscriptionItem.quantity ?? 1),
-                0,
-              ),
-            0,
+        const normalized = [];
+        for (let index = 0; index < subscriptions.length; index += 10) {
+          normalized.push(...await Promise.all(
+            subscriptions.slice(index, index + 10).map(getDashboardSubscription),
+          ));
+        }
+        const byId = new Map(normalized.map((item) => [item.id, item]));
+        const active = normalized.filter((item) => isActiveSubscriptionStatus(item.status));
+        totalRecurringRevenueCents = active.some((item) => item.monthlyRateCents === null)
+          ? null
+          : active.reduce((sum, item) => sum + (item.monthlyRateCents ?? 0), 0);
+        refreshedBillings = refreshedBillings.map((billing) => {
+          const matches = subscriptions.filter((item) =>
+            (typeof item.customer === "string" ? item.customer : item.customer.id) === billing.stripe_customer_id,
           );
+          const latest = matches.find((item) => isActiveSubscriptionStatus(item.status))
+            ?? matches.sort((a, b) => b.created - a.created)[0];
+          const live = latest ? byId.get(latest.id) : null;
+          return live ? {
+            ...billing,
+            stripe_subscription_id: live.id,
+            subscription_status: live.status,
+            monthly_rate_cents: live.monthlyRateCents,
+            stripe_product_name: live.productName,
+            stripe_price_id: live.priceId,
+            current_period_start: live.currentPeriodStart,
+            current_period_end: live.currentPeriodEnd,
+            cancel_at_period_end: live.cancelAtPeriodEnd,
+          } : billing;
+        });
 
         totalRevenueCents = charges.data
           .filter((charge) => charge.paid && !charge.refunded)
           .reduce((sum, charge) => sum + charge.amount, 0);
 
         revenueNote =
-          "Revenue totals use the latest 100 Stripe records returned by the API.";
+          totalRecurringRevenueCents === null
+            ? "Discounted recurring revenue is unavailable. Revenue so far uses the latest 100 Stripe charges."
+            : "Recurring revenue uses discounted Stripe renewal rates. Revenue so far uses the latest 100 Stripe charges.";
       } catch (error) {
         console.error("Unable to load Stripe revenue:", error);
       }
 
       admin = {
         customers: customers ?? [],
-        billings: billings ?? [],
+        billings: refreshedBillings,
         serviceRequests: allRequests ?? [],
         totalRecurringRevenueCents,
         totalRevenueCents,

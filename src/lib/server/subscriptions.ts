@@ -1,6 +1,8 @@
 import "server-only";
 
 import type Stripe from "stripe";
+import { getStripe } from "@/lib/server/stripe";
+import { monthlyRevenueFromInvoice } from "@/lib/subscription-revenue";
 import type { CustomerBilling } from "@/lib/supabase";
 
 export type DashboardSubscription = {
@@ -49,6 +51,36 @@ export const toDashboardSubscription = (
   };
 };
 
+export const getDashboardSubscription = async (
+  subscription: Stripe.Subscription,
+): Promise<DashboardSubscription> => {
+  const normalized = toDashboardSubscription(subscription);
+  if (!isActiveSubscriptionStatus(subscription.status)) return normalized;
+  try {
+    const invoice = await getStripe().invoices.createPreview({
+      subscription: subscription.id,
+      // Preview renewal pricing even when the customer has scheduled cancellation.
+      // This only changes the preview; the live subscription is never modified.
+      ...(subscription.cancel_at || subscription.cancel_at_period_end
+        ? {
+            subscription_details: {
+              cancel_at: "" as const,
+              cancel_at_period_end: false,
+              proration_behavior: "none" as const,
+            },
+          }
+        : {}),
+    });
+    normalized.monthlyRateCents = invoice.lines.has_more
+      ? null
+      : monthlyRevenueFromInvoice(subscription, invoice.lines.data);
+  } catch (error) {
+    console.error("Unable to preview discounted subscription rate:", error);
+    normalized.monthlyRateCents = null;
+  }
+  return normalized;
+};
+
 export const billingToDashboardSubscription = (
   billing: CustomerBilling | null,
 ): DashboardSubscription | null => {
@@ -74,10 +106,8 @@ export const isActiveSubscriptionStatus = (status: string | null | undefined) =>
   status === "active" || status === "trialing";
 
 export const subscriptionToBillingUpdate = (
-  subscription: Stripe.Subscription,
+  normalized: DashboardSubscription,
 ) => {
-  const normalized = toDashboardSubscription(subscription);
-
   return {
     stripe_subscription_id: normalized.id,
     stripe_price_id: normalized.priceId,

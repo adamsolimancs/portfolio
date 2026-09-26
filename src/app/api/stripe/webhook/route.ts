@@ -6,7 +6,7 @@ import {
   upsertCustomerForUser,
 } from "@/lib/server/supabase";
 import { getStripe } from "@/lib/server/stripe";
-import { subscriptionToBillingUpdate } from "@/lib/server/subscriptions";
+import { getDashboardSubscription, subscriptionToBillingUpdate } from "@/lib/server/subscriptions";
 
 export const dynamic = "force-dynamic";
 
@@ -16,7 +16,7 @@ const upsertSubscription = async (
   supabaseUserId?: string | null,
 ) => {
   const supabase = createSupabaseAdminClient();
-  const update = subscriptionToBillingUpdate(subscription);
+  const update = subscriptionToBillingUpdate(await getDashboardSubscription(subscription));
 
   if (supabaseUserId) {
     const {

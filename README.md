@@ -82,4 +82,20 @@ sign-up metadata.
 - `src/lib/supabase.ts`: browser client and database types.
 - `public`: public assets.
 
+Administrator recurring revenue and active customer rates use Stripe invoice
+preview subscription lines after Stripe's allocated discounts, normalized to a
+monthly amount. One-time invoice items, prorations, taxes, and account balances
+are excluded. Scheduled cancellation is removed only in the preview to show the
+current renewal rate; this never changes the live subscription. A failed or
+incomplete preview shows the rate and recurring total as unavailable instead of
+using the undiscounted price. Active and trialing customers appear above a
+collapsed non-active customer section. Revenue so far still uses the latest
+100 Stripe charges.
+
+Run the focused revenue regression tests with:
+
+```sh
+node --experimental-strip-types --test tests/subscription-revenue.test.mjs
+```
+
 Follow [AGENTS.md](AGENTS.md) for contribution and validation requirements.
