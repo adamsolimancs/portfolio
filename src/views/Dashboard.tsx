@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import {
   CircleAlert,
@@ -38,6 +38,7 @@ import { toast } from "@/components/ui/sonner";
 import { useAuth } from "@/components/auth/useAuth";
 import { supabase, type Customer, type CustomerBilling, type ServiceRequest } from "@/lib/supabase";
 import type { ServiceTier } from "@/lib/services";
+import { requestDashboard } from "@/lib/dashboard-request";
 
 type DashboardSubscription = {
   id: string | null;
@@ -152,44 +153,43 @@ const Dashboard = () => {
     [session?.access_token],
   );
 
-  const loadDashboard = useCallback(async () => {
-    if (!authHeaders) {
-      return;
-    }
-
-    setLoading(true);
-    setError(null);
-
-    const response = await fetch("/api/dashboard", {
-      headers: authHeaders,
-    });
-    const payload = await parseApiResponse<DashboardData & { error?: string }>(
-      response,
-    );
-
-    if (!response.ok) {
-      setError(payload?.error || "Unable to load dashboard.");
-      setLoading(false);
-      return;
-    }
-
-    if (!payload) {
-      setError("Unable to load dashboard.");
-      setLoading(false);
-      return;
-    }
-
-    setDashboard(payload);
-    setForm((current) => ({
-      ...current,
-      serviceTierId: payload.services?.[0]?.id || current.serviceTierId,
-    }));
-    setLoading(false);
-  }, [authHeaders]);
+  const [reloadCount, setReloadCount] = useState(0);
 
   useEffect(() => {
+    if (!user?.id || !supabase) return;
+    const controller = new AbortController();
+    const auth = supabase.auth;
+
+    const loadDashboard = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const response = await requestDashboard(auth, controller.signal);
+        const payload = await parseApiResponse<DashboardData>(response);
+        if (controller.signal.aborted) return;
+        if (!response.ok || !payload) {
+          setError(response.status === 401
+            ? "Please sign out and sign in again to continue."
+            : "We couldn’t load your dashboard. Please try again.");
+          return;
+        }
+        setDashboard(payload);
+        setForm((current) => ({
+          ...current,
+          serviceTierId: payload.services?.[0]?.id || current.serviceTierId,
+        }));
+      } catch {
+        if (!controller.signal.aborted) {
+          setError("We couldn’t connect. Please check your connection and try again.");
+        }
+      } finally {
+        if (!controller.signal.aborted) setLoading(false);
+      }
+    };
+
     void loadDashboard();
-  }, [loadDashboard]);
+    return () => controller.abort();
+  }, [user?.id, reloadCount]);
 
   const handleSignOut = async () => {
     await supabase?.auth.signOut();
@@ -216,7 +216,7 @@ const Dashboard = () => {
     );
 
     if (!response.ok || !payload?.url) {
-      setError(payload?.error || "Unable to start checkout.");
+      setError("We couldn’t open checkout. Please try again.");
       setCheckoutLoading(null);
       return;
     }
@@ -239,7 +239,7 @@ const Dashboard = () => {
     const payload = await response.json();
 
     if (!response.ok || !payload.url) {
-      setError(payload.error || "Unable to open billing portal.");
+      setError("We couldn’t open billing settings. Please try again.");
       setPortalLoading(false);
       return;
     }
@@ -278,7 +278,7 @@ const Dashboard = () => {
         httpStatus: response.status,
         error: payload?.error || "Unknown API error",
       });
-      toast.error(payload?.error || "Unable to send service request.");
+      toast.error("We couldn’t send your request. Check the details and try again.");
       setRequestSaving(false);
       return;
     }
@@ -341,7 +341,7 @@ const Dashboard = () => {
     }>(response);
 
     if (!response.ok || !payload?.serviceRequest) {
-      setError(payload?.error || "Unable to update request.");
+      setError("We couldn’t update the request. Please try again.");
       setRequestUpdating(null);
       return;
     }
@@ -404,7 +404,7 @@ const Dashboard = () => {
     user?.user_metadata?.name ||
     user?.email ||
     "username";
-  const showCustomerServices = !dashboard?.isAdmin;
+  const showCustomerServices = dashboard && !dashboard.isAdmin;
 
   return (
     <main className="min-h-screen bg-background px-6 py-8">
@@ -448,8 +448,13 @@ const Dashboard = () => {
         </header>
 
         {error && (
-          <div className="rounded-lg border border-destructive/30 bg-destructive/5 p-4 text-sm text-destructive">
-            {error}
+          <div role="alert" className="rounded-lg border border-destructive/30 bg-destructive/5 p-4 text-sm text-destructive">
+            <p>{error}</p>
+            {!dashboard && (
+              <Button variant="outline" className="mt-3" onClick={() => setReloadCount((count) => count + 1)}>
+                Try again
+              </Button>
+            )}
           </div>
         )}
 

@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@/components/auth/useAuth";
 import { supabase } from "@/lib/supabase";
+import { getAuthErrorMessage, getPostAuthRedirect } from "@/lib/auth-navigation";
 
 type AuthMode = "sign-in" | "sign-up";
 
@@ -39,12 +40,13 @@ const Auth = ({ mode }: { mode: AuthMode }) => {
   const { configured, loading: authLoading, user } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
-  const redirectTo = searchParams.get("redirect") || "/dashboard";
+  const redirectTo = getPostAuthRedirect(searchParams.get("redirect"));
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
+  const [notice, setNotice] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const isSignUp = mode === "sign-up";
 
@@ -57,9 +59,10 @@ const Auth = ({ mode }: { mode: AuthMode }) => {
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setError("");
+    setNotice("");
 
     if (!supabase) {
-      setError("Add your Supabase URL and anon key before signing in.");
+      setError("Sign-in is temporarily unavailable. Please try again later.");
       return;
     }
 
@@ -69,31 +72,35 @@ const Auth = ({ mode }: { mode: AuthMode }) => {
     }
 
     setSubmitting(true);
+    try {
+      const { data, error: authError } = isSignUp
+        ? await supabase.auth.signUp({
+            email,
+            password,
+            options: {
+              data: { customer_signup: true, full_name: fullName },
+              emailRedirectTo: `${window.location.origin}${redirectTo}`,
+            },
+          })
+        : await supabase.auth.signInWithPassword({ email, password });
 
-    const { data, error: authError } = isSignUp
-      ? await supabase.auth.signUp({
-          email,
-          password,
-          options: {
-            data: { customer_signup: true, full_name: fullName },
-          },
-        })
-      : await supabase.auth.signInWithPassword({ email, password });
+      if (authError) {
+        setError(getAuthErrorMessage(authError));
+        return;
+      }
 
-    setSubmitting(false);
-
-    if (authError) {
-      setError(authError.message);
-      return;
-    }
-
-    if (data.session) {
-      router.replace(redirectTo);
-      return;
-    }
-
-    if (isSignUp) {
-      router.replace(redirectTo);
+      // The auth-state effect redirects only after the provider has the session.
+      if (isSignUp && !data.session) {
+        setNotice(
+          "Check your email for a confirmation link, then sign in to open your dashboard.",
+        );
+        setPassword("");
+        setConfirmPassword("");
+      }
+    } catch {
+      setError("We couldn’t connect. Please check your connection and try again.");
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -101,21 +108,25 @@ const Auth = ({ mode }: { mode: AuthMode }) => {
     setError("");
 
     if (!supabase) {
-      setError("Add your Supabase URL and anon key before using Google sign in.");
+      setError("Sign-in is temporarily unavailable. Please try again later.");
       return;
     }
 
     setSubmitting(true);
-    const { error: authError } = await supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: {
-        redirectTo: `${window.location.origin}/dashboard`,
-      },
-    });
-    setSubmitting(false);
-
-    if (authError) {
-      setError(authError.message);
+    try {
+      const { error: authError } = await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: {
+          redirectTo: `${window.location.origin}${redirectTo}`,
+        },
+      });
+      if (authError) {
+        setError(getAuthErrorMessage(authError));
+      }
+    } catch {
+      setError("We couldn’t connect to Google sign-in. Please try again.");
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -144,9 +155,7 @@ const Auth = ({ mode }: { mode: AuthMode }) => {
 
           {!configured && (
             <div className="rounded-lg border border-border bg-muted/50 p-4 text-sm text-muted-foreground">
-              Supabase is scaffolded. Add `NEXT_PUBLIC_SUPABASE_URL` and
-              `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` to `.env` to enable
-              authentication.
+              Sign-in is temporarily unavailable. Please try again later.
             </div>
           )}
 
@@ -157,6 +166,7 @@ const Auth = ({ mode }: { mode: AuthMode }) => {
                 value={fullName}
                 onChange={(event) => setFullName(event.target.value)}
                 placeholder="Full name"
+                aria-label="Full name"
                 autoComplete="name"
               />
             )}
@@ -166,6 +176,7 @@ const Auth = ({ mode }: { mode: AuthMode }) => {
               value={email}
               onChange={(event) => setEmail(event.target.value)}
               placeholder="Email"
+              aria-label="Email"
               autoComplete="email"
               required
             />
@@ -175,6 +186,7 @@ const Auth = ({ mode }: { mode: AuthMode }) => {
               value={password}
               onChange={(event) => setPassword(event.target.value)}
               placeholder="Password"
+              aria-label="Password"
               autoComplete={isSignUp ? "new-password" : "current-password"}
               required
               minLength={6}
@@ -186,18 +198,22 @@ const Auth = ({ mode }: { mode: AuthMode }) => {
                 value={confirmPassword}
                 onChange={(event) => setConfirmPassword(event.target.value)}
                 placeholder="Confirm password"
+                aria-label="Confirm password"
                 autoComplete="new-password"
                 required
                 minLength={6}
               />
             )}
 
-            {error && <p className="text-sm text-destructive">{error}</p>}
+            {notice && (
+              <p role="status" className="text-sm text-muted-foreground">{notice}</p>
+            )}
+            {error && <p role="alert" className="text-sm text-destructive">{error}</p>}
 
             <Button
               type="submit"
               className="h-14 w-full rounded-full text-base"
-              disabled={!configured || submitting}
+              disabled={!configured || authLoading || submitting}
             >
               {submitting && <Loader2 className="animate-spin" />}
               {isSignUp ? "Create account" : "Sign in"}
@@ -209,7 +225,7 @@ const Auth = ({ mode }: { mode: AuthMode }) => {
             variant="outline"
             className="h-14 w-full rounded-full bg-white text-base"
             onClick={handleGoogleSignIn}
-            disabled={!configured || submitting}
+            disabled={!configured || authLoading || submitting}
           >
             <GoogleLogo />
             Continue with Google

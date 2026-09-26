@@ -45,7 +45,7 @@ export async function GET(request: Request) {
   try {
     if (!isServerSupabaseConfigured) {
       return NextResponse.json(
-        { error: "Supabase server credentials are not configured." },
+        { error: "We couldn’t load your dashboard. Please try again later." },
         { status: 500 },
       );
     }
@@ -53,7 +53,10 @@ export async function GET(request: Request) {
     const user = await getAuthenticatedUser(request);
 
     if (!user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      return NextResponse.json(
+        { error: "Please sign in again to continue." },
+        { status: 401 },
+      );
     }
 
     const supabase = createSupabaseAdminClient();
@@ -86,8 +89,9 @@ export async function GET(request: Request) {
       customerError || billingError || adminError || serviceRequestsError;
 
     if (initialError) {
+      console.error("Dashboard database read failed:", initialError);
       return NextResponse.json(
-        { error: initialError.message },
+        { error: "We couldn’t load your dashboard. Please try again." },
         { status: 500 },
       );
     }
@@ -135,8 +139,9 @@ export async function GET(request: Request) {
       const adminError = customersError || billingsError || allRequestsError;
 
       if (adminError) {
+        console.error("Admin dashboard read failed:", adminError);
         return NextResponse.json(
-          { error: adminError.message },
+          { error: "We couldn’t load your dashboard. Please try again." },
           { status: 500 },
         );
       }
@@ -212,8 +217,7 @@ export async function GET(request: Request) {
 
     return NextResponse.json(
       {
-        error:
-          error instanceof Error ? error.message : "Unable to load dashboard.",
+        error: "We couldn’t load your dashboard. Please try again.",
       },
       { status: 500 },
     );

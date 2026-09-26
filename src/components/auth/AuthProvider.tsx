@@ -17,19 +17,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     let mounted = true;
 
-    supabase.auth.getSession().then(({ data }) => {
-      if (!mounted) {
-        return;
-      }
-
-      setSession(data.session);
-      setLoading(false);
-    });
-
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, nextSession) => {
+      if (!mounted) return;
       setSession(nextSession);
+      setLoading(false);
     });
 
     return () => {

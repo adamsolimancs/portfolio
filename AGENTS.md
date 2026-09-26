@@ -4,7 +4,7 @@
 
 - These instructions apply to the whole repository.
 - This is a Next.js TypeScript portfolio and client dashboard app. It uses the App Router under `src/app`, delegates most page bodies to `src/views`, and shares UI through `src/components`.
-- There is currently no repo README; treat `package.json`, `next.config.ts`, `eslint.config.js`, `tsconfig.json`, `tailwind.config.ts`, `components.json`, `.env.example`, and `supabase/migrations` as the primary project reference points.
+- Start with `README.md` for setup and architecture; use `package.json`, `next.config.ts`, `eslint.config.js`, `tsconfig.json`, `tailwind.config.ts`, `components.json`, `.env.example`, and `supabase/migrations` as the primary implementation reference points.
 
 ## Repo Workflow
 
