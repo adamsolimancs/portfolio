@@ -31,6 +31,5 @@ export default function robots(): MetadataRoute.Robots {
       },
     ],
     sitemap: "https://adamesoliman.com/sitemap.xml",
-    host: "https://adamesoliman.com",
   };
 }

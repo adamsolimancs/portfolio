@@ -18,6 +18,12 @@ Open `http://localhost:3000`. The public portfolio can render without service
 credentials. Authentication requires the public Supabase variables; dashboard
 APIs also require the server secret. Never commit `.env` or print its contents.
 
+To preview the subscribed customer dashboard locally without signing in, set
+`NEXT_PUBLIC_ENABLE_DASHBOARD_DEMO=true` in `.env.local`, restart the dev
+server, and open `http://localhost:3000/dashboard?demo=subscription`. This
+development-only view uses sample data and does not call Supabase or Stripe;
+request and billing actions are disabled. The flag has no effect in production.
+
 ```sh
 npm run lint
 npm run build

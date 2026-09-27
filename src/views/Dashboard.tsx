@@ -33,11 +33,18 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription as DialogSubtitle,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "@/components/ui/sonner";
 import { useAuth } from "@/components/auth/useAuth";
 import { supabase, type Customer, type CustomerBilling, type ServiceRequest } from "@/lib/supabase";
-import type { ServiceTier } from "@/lib/services";
+import { SERVICES, type ServiceTier } from "@/lib/services";
 import { requestDashboard } from "@/lib/dashboard-request";
 
 type DashboardSubscription = {
@@ -74,6 +81,60 @@ type DashboardData = {
     revenueNote: string;
   } | null;
 };
+
+const demoDashboard: DashboardData = {
+  user: {
+    id: "demo-customer",
+    email: "jordan@example.com",
+    name: "Jordan Lee",
+  },
+  services: SERVICES,
+  subscription: {
+    id: "sub_demo_subscription",
+    status: "active",
+    monthlyRateCents: 14900,
+    productName: "Professional Website",
+    priceId: "price_demo_monthly",
+    startedAt: "2026-06-12T00:00:00.000Z",
+    currentPeriodStart: "2026-09-12T00:00:00.000Z",
+    currentPeriodEnd: "2026-10-12T00:00:00.000Z",
+    cancelAt: null,
+    cancelAtPeriodEnd: false,
+  },
+  hasActiveSubscription: true,
+  serviceRequests: [
+    {
+      id: "request_demo_in_progress",
+      client_id: "demo-customer",
+      service_tier_id: "professional",
+      title: "Update the services page",
+      description: "Please add the new consulting package and update the contact link to point to our booking page.",
+      priority: "normal",
+      status: "in_progress",
+      admin_comment: "I’m working on this now and will send you a preview shortly.",
+      completed_at: null,
+      created_at: "2026-09-18T14:30:00.000Z",
+    },
+    {
+      id: "request_demo_completed",
+      client_id: "demo-customer",
+      service_tier_id: "professional",
+      title: "Improve mobile navigation",
+      description: "Make the mobile menu easier to use and ensure it closes after a selection.",
+      priority: "high",
+      status: "completed",
+      admin_comment: "Updated and deployed. Let me know if you would like any further adjustments.",
+      completed_at: "2026-08-24T16:00:00.000Z",
+      created_at: "2026-08-20T12:15:00.000Z",
+    },
+  ],
+  isAdmin: false,
+  admin: null,
+};
+
+const isSubscriptionDemoEnabled =
+  process.env.NODE_ENV === "development" &&
+  process.env.NEXT_PUBLIC_ENABLE_DASHBOARD_DEMO === "true";
 
 const formatCurrency = (cents: number | null | undefined, currency = "usd") => {
   if (typeof cents !== "number") {
@@ -212,8 +273,18 @@ const Dashboard = () => {
   );
 
   const [reloadCount, setReloadCount] = useState(0);
+  const [demoMode, setDemoMode] = useState(false);
 
   useEffect(() => {
+    const requestedDemo =
+      new URLSearchParams(window.location.search).get("demo") === "subscription";
+    if (requestedDemo && isSubscriptionDemoEnabled) {
+      setDemoMode(true);
+      setDashboard(demoDashboard);
+      setLoading(false);
+      return;
+    }
+
     if (!user?.id || !supabase) return;
     const controller = new AbortController();
     const auth = supabase.auth;
@@ -283,6 +354,13 @@ const Dashboard = () => {
   };
 
   const openBillingPortal = async () => {
+    if (demoMode) {
+      toast.message("Demo mode", {
+        description: "Billing portal actions are disabled in the local preview.",
+      });
+      return;
+    }
+
     if (!authHeaders) {
       return;
     }
@@ -309,6 +387,13 @@ const Dashboard = () => {
     event: React.FormEvent<HTMLFormElement>,
   ) => {
     event.preventDefault();
+
+    if (demoMode) {
+      toast.message("Demo mode", {
+        description: "Requests are not saved in the local preview.",
+      });
+      return;
+    }
 
     if (!authHeaders) {
       return;
@@ -472,17 +557,39 @@ const Dashboard = () => {
   const showCustomerServices = dashboard && !dashboard.isAdmin;
 
   return (
-    <main className="min-h-screen bg-background px-6 py-8">
-      <div className="mx-auto flex w-full max-w-6xl flex-col gap-10">
+    <main className="min-h-screen bg-background px-3 py-3 sm:px-4 sm:py-4">
+      {demoMode && (
+        <div className="mb-4 rounded-lg border border-border bg-muted px-4 py-3 text-center text-sm text-muted-foreground">
+          Local subscription demo · sample data only · no database or billing changes
+        </div>
+      )}
+      <div className="mb-6 flex items-center justify-between gap-3">
+      <Link
+        href="/"
+        className="flex min-w-0 items-center gap-2 text-base font-medium text-foreground transition-opacity hover:opacity-75 sm:text-lg"
+      >
+        <span className="relative h-9 w-10 flex-none overflow-hidden">
+          <img
+            src="/logo.png"
+            alt=""
+            className="absolute left-1/2 top-1/2 h-14 w-14 max-w-none -translate-x-1/2 -translate-y-1/2 object-contain"
+          />
+        </span>
+        <span>Adam Soliman</span>
+      </Link>
+        <Button
+          variant="outline"
+          className="h-11 shrink-0 rounded-full px-4 sm:px-6"
+          onClick={demoMode ? () => { window.location.href = "/dashboard"; } : handleSignOut}
+        >
+          <LogOut className="h-4 w-4" />
+          {demoMode ? "Exit demo" : "Sign out"}
+        </Button>
+      </div>
+      <div className="mx-auto flex w-full max-w-6xl min-w-0 flex-col gap-8 sm:gap-10">
         <header className="flex flex-col gap-5 border-b border-border pb-6 sm:flex-row sm:items-start sm:justify-between">
-          <div>
-            <Link
-              href="/"
-              className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary"
-            >
-              Adam Soliman
-            </Link>
-            <h1 className="mt-5 text-3xl font-medium tracking-tight md:text-4xl">
+          <div className="min-w-0 text-center sm:text-left">
+            <h1 className="mt-2 break-words text-3xl font-medium tracking-tight md:text-4xl">
               Hello {username}!
             </h1>
             <p className="mt-2 text-sm text-muted-foreground">
@@ -502,14 +609,6 @@ const Dashboard = () => {
               )}
             </p>
           </div>
-          <Button
-            variant="outline"
-            className="h-11 rounded-full px-6"
-            onClick={handleSignOut}
-          >
-            <LogOut className="h-4 w-4" />
-            Sign out
-          </Button>
         </header>
 
         {error && (
@@ -525,7 +624,7 @@ const Dashboard = () => {
 
         {showCustomerServices && !dashboard?.hasActiveSubscription && (
           <section className="space-y-5">
-            <div>
+            <div className="text-center sm:text-left">
               <h2 className="text-2xl font-medium">Choose a Service</h2>
               <p className="mt-2 text-sm text-muted-foreground">
                 Start a monthly subscription through Stripe Checkout.
@@ -536,7 +635,7 @@ const Dashboard = () => {
                 <article key={service.id} className="card-minimal">
                   <div className="flex flex-col gap-6">
                     <div>
-                      <div className="flex flex-wrap items-baseline justify-between gap-3">
+                      <div className="flex flex-col items-center gap-2 text-center sm:flex-row sm:flex-wrap sm:items-baseline sm:justify-between sm:gap-3 sm:text-left">
                         <h3 className="text-2xl font-medium">
                           {service.title}
                         </h3>
@@ -578,7 +677,7 @@ const Dashboard = () => {
         {showCustomerServices && dashboard?.hasActiveSubscription && (
           <section className="grid gap-6 lg:grid-cols-[1.2fr_0.8fr]">
               <article className="card-minimal">
-                <h2 className="text-2xl font-medium">Service Request</h2>
+                <h2 className="text-center text-2xl font-medium sm:text-left">Service Request</h2>
                 <form className="mt-6 space-y-5" onSubmit={submitServiceRequest}>
                 <div className="grid gap-5 sm:grid-cols-2">
                   <div className="space-y-2">
@@ -664,7 +763,7 @@ const Dashboard = () => {
 
               <div className="space-y-6">
                 <article className="card-minimal">
-                  <h2 className="text-2xl font-medium">Subscription</h2>
+                  <h2 className="text-center text-2xl font-medium sm:text-left">Subscription</h2>
                   <dl className="mt-5 space-y-3 text-sm">
                   <div className="flex justify-between gap-4">
                     <dt className="text-muted-foreground">Plan</dt>
@@ -723,7 +822,7 @@ const Dashboard = () => {
 
         {showCustomerServices && dashboard && (
           <section className="card-minimal overflow-hidden">
-            <h2 className="mb-4 text-2xl font-medium">
+            <h2 className="mb-5 text-center text-2xl font-medium sm:text-left">
               Past Service Requests
             </h2>
             <CustomerRequestTable requests={dashboard.serviceRequests} />
@@ -874,8 +973,10 @@ const RequestTable = ({
               {customerById.get(request.client_id)?.email || request.client_id}
             </TableCell>
             <TableCell>
-              <p className="font-medium">{request.title || "Untitled"}</p>
-              <p className="mt-1 max-w-md text-sm text-muted-foreground">
+              <p className="font-medium break-all">
+                {request.title || "Untitled"}
+              </p>
+              <p className="mt-1 max-w-md break-all text-sm text-muted-foreground">
                 {request.description}
               </p>
             </TableCell>
@@ -945,6 +1046,45 @@ const RequestTable = ({
   );
 };
 
+const CustomerRequestDescription = ({ request }: { request: ServiceRequest }) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const isLong =
+    request.description.length > 240 || request.description.split("\n").length > 3;
+
+  return (
+    <div className="mt-1 max-w-md">
+      <p className={`break-words [overflow-wrap:anywhere] whitespace-pre-wrap text-sm text-muted-foreground ${isLong ? "line-clamp-3" : ""}`}>
+        {request.description}
+      </p>
+      {isLong && (
+        <Dialog open={isOpen} onOpenChange={setIsOpen}>
+          <Button
+            type="button"
+            variant="link"
+            className="mt-1 min-h-11 px-0 text-sm sm:min-h-0 sm:h-auto sm:text-xs"
+            onClick={() => setIsOpen(true)}
+          >
+            Show more
+          </Button>
+          <DialogContent className="max-h-[85dvh] w-[calc(100%-2rem)] overflow-y-auto rounded-lg sm:max-w-2xl">
+            <DialogHeader>
+              <DialogTitle className="break-words pr-6 leading-snug">
+                {request.title || "Untitled"}
+              </DialogTitle>
+              <DialogSubtitle>
+                Sent {formatDateTime(request.created_at)} · {statusLabel(request.priority)} priority · {statusLabel(request.status)}
+              </DialogSubtitle>
+            </DialogHeader>
+            <p className="break-words [overflow-wrap:anywhere] whitespace-pre-wrap text-sm leading-6 text-foreground">
+              {request.description}
+            </p>
+          </DialogContent>
+        </Dialog>
+      )}
+    </div>
+  );
+};
+
 const CustomerRequestTable = ({ requests }: { requests: ServiceRequest[] }) => {
   if (requests.length === 0) {
     return (
@@ -955,6 +1095,40 @@ const CustomerRequestTable = ({ requests }: { requests: ServiceRequest[] }) => {
   }
 
   return (
+    <>
+      <ul className="space-y-4 md:hidden" aria-label="Past service requests">
+        {requests.map((request) => (
+          <li key={request.id} className="min-w-0 rounded-lg border border-border p-4">
+            <div className="flex flex-wrap items-center gap-2 text-xs">
+              <span className={`rounded-none px-2.5 py-1 font-medium ${request.status === "completed" ? "bg-green-100 text-green-800 dark:bg-green-950 dark:text-green-200" : "bg-muted"}`}>
+                {statusLabel(request.status)}
+              </span>
+              <span className="text-muted-foreground">{statusLabel(request.priority)} priority</span>
+            </div>
+            <h3 className="mt-3 break-words font-medium [overflow-wrap:anywhere]">
+              {request.title || "Untitled"}
+            </h3>
+            <CustomerRequestDescription request={request} />
+            <dl className="mt-4 space-y-2 border-t border-border pt-3 text-xs">
+              <div className="flex flex-wrap justify-between gap-x-3 gap-y-1">
+                <dt className="text-muted-foreground">Sent</dt>
+                <dd>{formatDateTime(request.created_at)}</dd>
+              </div>
+              <div className="flex flex-wrap justify-between gap-x-3 gap-y-1">
+                <dt className="text-muted-foreground">Completed</dt>
+                <dd>{formatDateTime(request.completed_at)}</dd>
+              </div>
+              <div className="pt-1">
+                <dt className="text-muted-foreground">Admin comment</dt>
+                <dd className="mt-1 whitespace-pre-wrap break-words text-sm [overflow-wrap:anywhere]">
+                  {request.admin_comment || "No comment yet"}
+                </dd>
+              </div>
+            </dl>
+          </li>
+        ))}
+      </ul>
+      <div className="hidden md:block">
     <Table>
       <TableHeader>
         <TableRow>
@@ -973,10 +1147,8 @@ const CustomerRequestTable = ({ requests }: { requests: ServiceRequest[] }) => {
               {formatDateTime(request.created_at)}
             </TableCell>
             <TableCell className="min-w-64">
-              <p className="font-medium">{request.title || "Untitled"}</p>
-              <p className="mt-1 max-w-md whitespace-pre-wrap text-sm text-muted-foreground">
-                {request.description}
-              </p>
+              <p className="font-medium break-all">{request.title || "Untitled"}</p>
+              <CustomerRequestDescription request={request} />
             </TableCell>
             <TableCell>{statusLabel(request.priority)}</TableCell>
             <TableCell>{statusLabel(request.status)}</TableCell>
@@ -990,6 +1162,8 @@ const CustomerRequestTable = ({ requests }: { requests: ServiceRequest[] }) => {
         ))}
       </TableBody>
     </Table>
+      </div>
+    </>
   );
 };
 

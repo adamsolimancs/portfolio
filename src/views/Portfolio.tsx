@@ -169,11 +169,17 @@ const Portfolio = () => {
               </span>
             </p>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
-              {SERVICES.map((service) => (
-                <article
-                  key={service.title}
-                  className="card-minimal p-5 pb-7 pl-7 md:pb-8 md:pl-8 hover:scale-[1.02] hover:-translate-y-2"
-                >
+              {SERVICES.map((service) => {
+                const isDashboardService =
+                  service.title === "Professional Website" ||
+                  service.title === "Professional+ Website";
+                const serviceHref = isSignedIn
+                  ? "/dashboard"
+                  : "/sign-in?redirect=%2Fdashboard";
+                const card = (
+                  <article
+                    className={`card-minimal p-5 pb-7 pl-7 md:pb-8 md:pl-8 hover:scale-[1.02] hover:-translate-y-2${isDashboardService ? " cursor-pointer" : ""}`}
+                  >
                   <div className="space-y-5">
                     <div>
                       <h3 className="text-heading text-xl md:text-2xl mb-2">
@@ -193,8 +199,22 @@ const Portfolio = () => {
                       ))}
                     </ul>
                   </div>
-                </article>
-              ))}
+                  </article>
+                );
+
+                return isDashboardService ? (
+                  <Link
+                    key={service.title}
+                    href={serviceHref}
+                    className="rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                    aria-label={`${service.title}: ${isSignedIn ? "open dashboard" : "sign in to open dashboard"}`}
+                  >
+                    {card}
+                  </Link>
+                ) : (
+                  <div key={service.title}>{card}</div>
+                );
+              })}
             </div>
             <div className="mt-12 text-center">
               <Button className="bg-black text-white hover:bg-black/90" size="lg" asChild>
