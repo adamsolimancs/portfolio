@@ -69,7 +69,7 @@ type DashboardData = {
     billings: CustomerBilling[];
     serviceRequests: ServiceRequest[];
     totalRecurringRevenueCents: number | null;
-    totalRevenueCents: number;
+    totalRevenueCents: number | null;
     currency: string;
     revenueNote: string;
   } | null;
@@ -747,7 +747,9 @@ const Dashboard = () => {
                     dashboard.admin.totalRecurringRevenueCents,
                     dashboard.admin.currency,
                   )}
-                  <span className="text-base text-muted-foreground"> /mo</span>
+                  {dashboard.admin.totalRecurringRevenueCents !== null && (
+                    <span className="text-base text-muted-foreground"> /mo</span>
+                  )}
                 </p>
               </article>
               <article className="card-minimal">

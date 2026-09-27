@@ -13,22 +13,11 @@ import {
   getDashboardSubscription,
 } from "@/lib/server/subscriptions";
 import type { CustomerBilling } from "@/lib/supabase";
+import { loadStripeDashboardRecords } from "@/lib/stripe-dashboard";
 
 export const dynamic = "force-dynamic";
 
 const currency = "usd";
-
-const listSubscriptions = async () => {
-  const subscriptions = [];
-  for await (const subscription of getStripe().subscriptions.list({
-    status: "all",
-    limit: 100,
-    expand: ["data.items.data.price.product"],
-  })) {
-    subscriptions.push(subscription);
-  }
-  return subscriptions;
-};
 
 const findLatestSubscription = async (stripeCustomerId: string) => {
   const subscriptions = await getStripe().subscriptions.list({
@@ -160,15 +149,23 @@ export async function GET(request: Request) {
 
       let totalRecurringRevenueCents: number | null = null;
       let refreshedBillings = (billings ?? []) as CustomerBilling[];
-      let totalRevenueCents = 0;
+      let totalRevenueCents: number | null = null;
       let revenueNote =
-        "Stripe revenue is unavailable; customer and request data are still current.";
+        "Stripe revenue is unavailable; customer rates could not be refreshed.";
 
       try {
-        const [charges, subscriptions] = await Promise.all([
-          getStripe().charges.list({ limit: 100 }),
-          listSubscriptions(),
-        ]);
+        const records = await loadStripeDashboardRecords(getStripe());
+        if (records.charges.status === "fulfilled") {
+          totalRevenueCents = records.charges.value.data
+            .filter((charge) => charge.paid && !charge.refunded)
+            .reduce((sum, charge) => sum + charge.amount, 0);
+        } else {
+          console.error("Unable to load Stripe charges:", records.charges.reason);
+        }
+        if (records.subscriptions.status === "rejected") {
+          throw records.subscriptions.reason;
+        }
+        const subscriptions = records.subscriptions.value;
 
         const normalized = [];
         for (let index = 0; index < subscriptions.length; index += 10) {
@@ -193,7 +190,7 @@ export async function GET(request: Request) {
             stripe_subscription_id: live.id,
             subscription_status: live.status,
             monthly_rate_cents: live.monthlyRateCents,
-            stripe_product_name: live.productName,
+            stripe_product_name: live.productName ?? billing.stripe_product_name,
             stripe_price_id: live.priceId,
             current_period_start: live.currentPeriodStart,
             current_period_end: live.currentPeriodEnd,
@@ -201,17 +198,20 @@ export async function GET(request: Request) {
           } : billing;
         });
 
-        totalRevenueCents = charges.data
-          .filter((charge) => charge.paid && !charge.refunded)
-          .reduce((sum, charge) => sum + charge.amount, 0);
-
         revenueNote =
           totalRecurringRevenueCents === null
-            ? "Discounted recurring revenue is unavailable. Revenue so far uses the latest 100 Stripe charges."
-            : "Recurring revenue uses discounted Stripe renewal rates. Revenue so far uses the latest 100 Stripe charges.";
+            ? "Discounted recurring revenue is unavailable."
+            : "Recurring revenue uses discounted Stripe renewal rates.";
       } catch (error) {
         console.error("Unable to load Stripe revenue:", error);
+        refreshedBillings = refreshedBillings.map((billing) => ({
+          ...billing,
+          monthly_rate_cents: null,
+        }));
       }
+      revenueNote += totalRevenueCents === null
+        ? " Revenue so far is unavailable."
+        : " Revenue so far uses the latest 100 Stripe charges.";
 
       admin = {
         customers: customers ?? [],

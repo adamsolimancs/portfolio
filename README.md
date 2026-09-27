@@ -90,12 +90,13 @@ current renewal rate; this never changes the live subscription. A failed or
 incomplete preview shows the rate and recurring total as unavailable instead of
 using the undiscounted price. Active and trialing customers appear above a
 collapsed non-active customer section. Revenue so far still uses the latest
-100 Stripe charges.
+100 Stripe charges. Charge and subscription reads fail independently; failed
+reads show unavailable values instead of zero or stale customer rates.
 
 Run the focused revenue regression tests with:
 
 ```sh
-node --experimental-strip-types --test tests/subscription-revenue.test.mjs
+node --experimental-strip-types --test tests/subscription-revenue.test.mjs tests/stripe-dashboard.test.mjs
 ```
 
 Follow [AGENTS.md](AGENTS.md) for contribution and validation requirements.
